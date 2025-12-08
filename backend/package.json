@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "proto:gen": "powershell -Command \"protoc -I ./proto --plugin=protoc-gen-ts_proto='D:/Source/project/chat-real-time/backend/node_modules/.bin/protoc-gen-ts_proto.cmd' --ts_proto_out=interfaces --ts_proto_opt=nestJs=true,addGrpcMetadata=true $(Get-ChildItem ./proto/*.proto | ForEach-Object { $_.Name })\"",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
@@ -20,6 +21,8 @@
     "test:e2e": "jest --config ./apps/api-gateway/test/jest-e2e.json"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.2",
+    "@grpc/proto-loader": "^0.8.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.1.9",
@@ -48,6 +51,7 @@
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
+    "ts-proto": "^2.8.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
