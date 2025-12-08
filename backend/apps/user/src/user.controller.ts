@@ -1,13 +1,18 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { UserService } from './user.service'
-import { MessagePattern } from '@nestjs/microservices'
+import { GrpcMethod, MessagePattern } from '@nestjs/microservices'
+import type { Metadata, ServerUnaryCall } from '@grpc/grpc-js'
+import type { User, userId, UserServiceController } from 'interfaces/user'
 
 @Controller()
-export class UserController {
+export class UserController implements UserServiceController {
   constructor(private readonly userService: UserService) {}
 
-  @MessagePattern('users')
-  getHello(): string {
-    return 'vô'
+  @GrpcMethod('UserService', 'getUser')
+  getUser(data: userId, metadata: Metadata): User {
+    return {
+      id: data.id,
+      name: 'John Doe',
+    } as User
   }
 }
