@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 import { RedisModule } from '@app/redis'
+import { PrismaModule } from '@app/prisma'
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RedisModule } from '@app/redis'
       },
       'USER_REDIS',
     ),
+    PrismaModule,
   ],
   controllers: [UserController],
   providers: [UserService],
