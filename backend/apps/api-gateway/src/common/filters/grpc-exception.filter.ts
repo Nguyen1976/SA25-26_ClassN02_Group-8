@@ -8,13 +8,18 @@ import {
 import { status } from '@grpc/grpc-js'
 import { RpcException } from '@nestjs/microservices'
 
-@Catch(RpcException)
+@Catch()
 export class GrpcToHttpExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     // Giả sử host là HTTP (Gateway expose HTTP)
     const ctx = host.switchToHttp()
     const response = ctx.getResponse()
     const request = ctx.getRequest()
+
+    if (exception instanceof HttpException) {
+      const status = exception.getStatus()
+      return response.status(status).json(exception.getResponse())
+    }
 
     let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR
     let message = 'Internal server error'

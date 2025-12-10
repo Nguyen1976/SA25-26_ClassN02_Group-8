@@ -29,9 +29,31 @@ export class UserService {
   private readonly utilService: UtilService
 
   async register(data: UserRegisterRequest): Promise<UserRegisterResponse> {
-    // Implement registration logic here, e.g., save user to database
-    // For demonstration, we will just return a mock response
-    //createdAt, updatedAt, password
+    //check email exist
+    //check username exist
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    })
+    if (existingUser) {
+      throw new RpcException({
+        code: status.ALREADY_EXISTS,
+        message: 'Email already exists',
+      })
+    }
+    const existingUsername = await this.prisma.user.findUnique({
+      where: {
+        username: data.username,
+      },
+    })
+    if (existingUsername) {
+      throw new RpcException({
+        code: status.ALREADY_EXISTS,
+        message: 'Username already exists',
+      })
+    }
+
     const { createdAt, updatedAt, password, ...res } =
       await this.prisma.user.create({
         data: {
