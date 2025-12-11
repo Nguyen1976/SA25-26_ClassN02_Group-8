@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module'
 import { AuthGuard, CommonModule } from '@app/common'
 import { APP_GUARD } from '@nestjs/core'
 import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
+import { RealtimeGateway } from './realtime/realtime.gateway';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    RealtimeGateway,
   ],
   exports: [ClientsModule],
 })

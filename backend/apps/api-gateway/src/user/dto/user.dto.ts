@@ -32,3 +32,9 @@ export class LoginUserDto {
   @IsNotEmpty({ message: 'Password must not be empty' })
   password: string
 }
+
+export class MakeFriendDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string
+}

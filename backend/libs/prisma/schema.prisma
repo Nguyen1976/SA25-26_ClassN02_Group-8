@@ -16,3 +16,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+enum Status {
+  PENDING
+  REJECTED
+  ACCEPTED
+}
+
+model friendRequest {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  fromUserId String @db.ObjectId
+  toUserId String @db.ObjectId
+  status Status @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

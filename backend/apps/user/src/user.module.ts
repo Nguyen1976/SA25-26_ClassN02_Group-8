@@ -7,7 +7,6 @@ import { JwtModule } from '@nestjs/jwt'
 import { APP_GUARD } from '@nestjs/core'
 import { AuthGuard, CommonModule } from '@app/common'
 import { UtilModule } from '@app/util'
-import { RmqModule } from '@app/common/rmq/rmq.module'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 
 @Module({
