@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { AuthGuard, CommonModule } from '@app/common'
 import { UtilModule } from '@app/util'
 import { RmqModule } from '@app/common/rmq/rmq.module'
+import { ClientsModule, Transport } from '@nestjs/microservices'
 
 @Module({
   imports: [
@@ -22,7 +23,19 @@ import { RmqModule } from '@app/common/rmq/rmq.module'
     PrismaModule,
     CommonModule,
     UtilModule,
-    RmqModule.registerDirectPublisher(),
+    ClientsModule.register([
+      {
+        name: 'RABBITMQ_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'], // Nên để trong process.env
+          queue: 'notification_queue',
+          queueOptions: {
+            durable: true, // Tin nhắn được lưu vào đĩa cứng, an toàn khi crash
+          },
+        },
+      },
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService],

@@ -1,60 +1,31 @@
 import { DynamicModule, Module } from '@nestjs/common'
-import { RmqService } from './rmq.service'
 import { ClientsModule, Transport } from '@nestjs/microservices'
-import { EXCHANGE } from '../constants/exchange'
-import * as amqp from 'amqplib'
 
-interface RmqModuleOptions {
-  name: string
-  // exchange: string;
-}
-
-@Module({
-  providers: [RmqService],
-  exports: [RmqService],
-})
+@Module({})
 export class RmqModule {
-  //consumer or listener
-  static register({ name }: RmqModuleOptions): DynamicModule {
+  static registerClient(
+    name: string,
+    queue: string,
+    exchange?: string,
+  ): DynamicModule {
     return {
       module: RmqModule,
       imports: [
-        ClientsModule.registerAsync([
+        ClientsModule.register([
           {
             name,
-            useFactory: () => {
-              return {
-                transport: Transport.RMQ,
-                options: {
-                  urls: ['amqp://localhost:5672'],
-                  queue: `${name}_QUEUE`,
-                },
-              }
+            transport: Transport.RMQ,
+            options: {
+              urls: [process.env.RABBITMQ_URI || 'amqp://localhost:5672'],
+              queue,
+              queueOptions: { durable: true },
+              exchange,
+              persistent: true,
             },
           },
         ]),
       ],
       exports: [ClientsModule],
-    }
-  }
-
-  // For publisher with exchange
-  static registerDirectPublisher(): DynamicModule {
-    return {
-      module: RmqModule,
-      providers: [
-        {
-          provide: EXCHANGE.RMQ_PUBLISHER_CHANNEL,
-          useFactory: async () => {
-            const rabbitmqUri = 'amqp://localhost:5672'
-
-            const connection = await amqp.connect(rabbitmqUri)
-            const channel = await connection.createChannel()
-            return channel
-          },
-        },
-      ],
-      exports: [EXCHANGE.RMQ_PUBLISHER_CHANNEL],
     }
   }
 }

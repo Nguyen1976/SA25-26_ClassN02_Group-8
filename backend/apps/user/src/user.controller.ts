@@ -14,8 +14,6 @@ import type { Channel } from 'amqplib'
 export class UserController implements UserServiceController {
   constructor(private readonly userService: UserService) {}
 
-  @Inject(EXCHANGE.RMQ_PUBLISHER_CHANNEL)
-  private readonly channel: Channel
 
   @GrpcMethod('UserService', 'register')
   async register(

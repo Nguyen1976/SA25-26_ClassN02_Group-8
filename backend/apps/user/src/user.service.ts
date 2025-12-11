@@ -3,7 +3,7 @@ import { UtilService } from '@app/util/util.service'
 import { status } from '@grpc/grpc-js'
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { RpcException } from '@nestjs/microservices'
+import { ClientProxy, RpcException } from '@nestjs/microservices'
 import { stat } from 'fs'
 import {
   UserLoginRequest,
@@ -15,18 +15,13 @@ import { Redis as RedisClient } from 'ioredis'
 
 @Injectable()
 export class UserService {
-  constructor() {}
-  @Inject('USER_REDIS')
-  private readonly redis: RedisClient
-
-  @Inject(PrismaService)
-  private readonly prisma: PrismaService
-
-  @Inject(JwtService)
-  private readonly jwtService: JwtService
-
-  @Inject(UtilService)
-  private readonly utilService: UtilService
+  constructor(
+    @Inject('USER_REDIS') private readonly redis: RedisClient,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(JwtService) private readonly jwtService: JwtService,
+    @Inject(UtilService) private readonly utilService: UtilService,
+    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
+  ) {}
 
   async register(data: UserRegisterRequest): Promise<UserRegisterResponse> {
     //check email exist
@@ -62,6 +57,12 @@ export class UserService {
           username: data.username,
         },
       })
+
+    this.client.emit('user.created', {
+      id: res.id,
+      email: res.email,
+      username: res.username,
+    })
     return res
   }
 
