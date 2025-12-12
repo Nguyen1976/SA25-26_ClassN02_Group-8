@@ -5,6 +5,7 @@ package user;
 service UserService {
   rpc register (UserRegisterRequest) returns (UserRegisterResponse) {}
   rpc login (UserLoginRequest) returns (UserLoginResponse) {}
+  rpc makeFriend (MakeFriendRequest) returns (MakeFriendResponse) {}
 }
 
 message UserRegisterRequest {
@@ -29,4 +30,13 @@ message UserLoginResponse {
   string email = 2;
   string username = 3;
   string token = 4;
+}
+
+message MakeFriendRequest {
+  string userId = 1;
+  string friendEmail = 2;
+}
+
+message MakeFriendResponse {
+  string status = 1;
 }

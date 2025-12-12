@@ -35,12 +35,23 @@ export interface UserLoginResponse {
   token: string;
 }
 
+export interface MakeFriendRequest {
+  userId: string;
+  friendEmail: string;
+}
+
+export interface MakeFriendResponse {
+  status: string;
+}
+
 export const USER_PACKAGE_NAME = "user";
 
 export interface UserServiceClient {
   register(request: UserRegisterRequest, metadata?: Metadata): Observable<UserRegisterResponse>;
 
   login(request: UserLoginRequest, metadata?: Metadata): Observable<UserLoginResponse>;
+
+  makeFriend(request: MakeFriendRequest, metadata?: Metadata): Observable<MakeFriendResponse>;
 }
 
 export interface UserServiceController {
@@ -53,11 +64,16 @@ export interface UserServiceController {
     request: UserLoginRequest,
     metadata?: Metadata,
   ): Promise<UserLoginResponse> | Observable<UserLoginResponse> | UserLoginResponse;
+
+  makeFriend(
+    request: MakeFriendRequest,
+    metadata?: Metadata,
+  ): Promise<MakeFriendResponse> | Observable<MakeFriendResponse> | MakeFriendResponse;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["register", "login"];
+    const grpcMethods: string[] = ["register", "login", "makeFriend"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);

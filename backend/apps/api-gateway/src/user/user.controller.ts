@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common'
 import { UserService } from './user.service'
-import { LoginUserDto, RegisterUserDto } from './dto/user.dto'
+import { LoginUserDto, MakeFriendDto, RegisterUserDto } from './dto/user.dto'
 import { RequireLogin, UserInfo } from '@app/common/common.decorator'
 
 @Controller('user')
@@ -23,5 +23,14 @@ export class UserController {
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
     return await this.userService.login(loginUserDto)
+  }
+
+  @Post('make-friend')
+  @RequireLogin()
+  async makeFriend(
+    @Body() body: MakeFriendDto,
+    @UserInfo('userId') userId: string,
+  ) {
+    return await this.userService.makeFriend({userId, friendEmail: body.email})
   }
 }

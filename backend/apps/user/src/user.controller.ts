@@ -3,6 +3,8 @@ import { UserService } from './user.service'
 import { GrpcMethod, MessagePattern } from '@nestjs/microservices'
 import type { Metadata, ServerUnaryCall } from '@grpc/grpc-js'
 import type {
+  MakeFriendRequest,
+  MakeFriendResponse,
   UserRegisterRequest,
   UserRegisterResponse,
   UserServiceController,
@@ -13,7 +15,6 @@ import type { Channel } from 'amqplib'
 @Controller()
 export class UserController implements UserServiceController {
   constructor(private readonly userService: UserService) {}
-
 
   @GrpcMethod('UserService', 'register')
   async register(
@@ -27,6 +28,15 @@ export class UserController implements UserServiceController {
   @GrpcMethod('UserService', 'login')
   async login(data: any, metadata: Metadata): Promise<any> {
     const res = await this.userService.login(data)
+    return res
+  }
+
+  @GrpcMethod('UserService', 'makeFriend')
+  async makeFriend(
+    data: MakeFriendRequest,
+    metadata: Metadata,
+  ): Promise<MakeFriendResponse> {
+    const res = await this.userService.makeFriend(data)
     return res
   }
 }

@@ -37,4 +37,5 @@ export class MakeFriendDto {
   @IsNotEmpty()
   @IsEmail()
   email: string
+  
 }

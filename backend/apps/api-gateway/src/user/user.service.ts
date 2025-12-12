@@ -5,8 +5,10 @@ import {
   Injectable,
   OnModuleInit,
 } from '@nestjs/common'
-import { LoginUserDto, RegisterUserDto } from './dto/user.dto'
+import { LoginUserDto, MakeFriendDto, RegisterUserDto } from './dto/user.dto'
 import {
+  MakeFriendRequest,
+  MakeFriendResponse,
   USER_SERVICE_NAME,
   UserLoginRequest,
   UserLoginResponse,
@@ -41,6 +43,14 @@ export class UserService implements OnModuleInit {
       password: dto.password,
     } as UserLoginRequest)
 
+    return await firstValueFrom(observable)
+  }
+
+  async makeFriend(dto: any): Promise<MakeFriendResponse> {
+    const observable = this.userClient.makeFriend({
+      userId: dto.userId,
+      friendEmail: dto.friendEmail,
+    } as MakeFriendRequest)
     return await firstValueFrom(observable)
   }
 }

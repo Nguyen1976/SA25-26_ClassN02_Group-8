@@ -6,6 +6,8 @@ import { JwtService } from '@nestjs/jwt'
 import { ClientProxy, RpcException } from '@nestjs/microservices'
 import { stat } from 'fs'
 import {
+  MakeFriendRequest,
+  MakeFriendResponse,
   UserLoginRequest,
   UserLoginResponse,
   UserRegisterRequest,
@@ -58,11 +60,12 @@ export class UserService {
         },
       })
 
-    this.client.emit('user.created', {
-      id: res.id,
-      email: res.email,
-      username: res.username,
-    })
+    //test emit event to rabbitmq
+    // this.client.emit('user.created', {
+    //   id: res.id,
+    //   email: res.email,
+    //   username: res.username,
+    // })
     return res
   }
 
@@ -79,7 +82,7 @@ export class UserService {
       })
     }
     const token = this.jwtService.sign({
-      id: user.id,
+      userId: user.id,
       email: user.email,
       username: user.username,
     })
@@ -87,5 +90,12 @@ export class UserService {
       ...user,
       token,
     }
+  }
+
+  async makeFriend(data: MakeFriendRequest): Promise<MakeFriendResponse> {
+    //chekc email ton tai
+
+    //gui mail moi ban be
+    return { status: 'pending' }
   }
 }
