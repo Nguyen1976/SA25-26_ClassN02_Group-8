@@ -1,0 +1,116 @@
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chào mừng đến với Chat App</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f4f4f7;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .wrapper {
+        width: 100%;
+        padding: 30px 0;
+      }
+
+      .container {
+        max-width: 600px;
+        background: white;
+        margin: 0 auto;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .header {
+        text-align: center;
+      }
+
+      .header h1 {
+        color: #4f46e5;
+        font-size: 28px;
+        margin-bottom: 10px;
+      }
+
+      .banner {
+        width: 100%;
+        border-radius: 12px;
+        margin: 20px 0;
+      }
+
+      p {
+        color: #333;
+        line-height: 1.6;
+        font-size: 16px;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 14px 26px;
+        background: #4f46e5;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 14px;
+        color: #777;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="header">
+          <h1>🎉 Chào mừng đến với Chat App!</h1>
+        </div>
+
+        <img
+          class="banner"
+          src="https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=800&q=80"
+          alt="Welcome Banner"
+        />
+
+        <p>Xin chào <strong>{{name}}</strong>,</p>
+
+        <p>
+          Cảm ơn bạn đã đăng ký tài khoản tại
+          <strong>Chat App</strong>. Chúng tôi rất vui khi được đồng hành cùng
+          bạn! Từ giờ, bạn có thể:
+        </p>
+
+        <ul>
+          <li>💬 Trò chuyện với mọi người theo thời gian thực</li>
+          <li>🚀 Tạo phòng chat riêng hoặc nhóm</li>
+          <li>🔔 Nhận thông báo cực nhanh</li>
+          <li>🛡️ Bảo mật tin nhắn an toàn</li>
+        </ul>
+
+        <p>
+          Hãy bắt đầu hành trình kết nối ngay hôm nay bằng cách đăng nhập bên
+          dưới:
+        </p>
+
+        <div style="text-align: center">
+          <a href="{{loginUrl}}" class="btn">Bắt đầu sử dụng</a>
+        </div>
+
+        <p>Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email.</p>
+
+        <div class="footer">
+          <p>© {{year}} Chat App — Kết nối mọi người lại gần nhau hơn.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

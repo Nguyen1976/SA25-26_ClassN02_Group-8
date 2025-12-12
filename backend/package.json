@@ -23,6 +23,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.14.2",
     "@grpc/proto-loader": "^0.8.0",
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -41,6 +42,7 @@
     "class-validator": "^0.14.3",
     "dotenv": "^17.2.3",
     "ioredis": "^5.8.2",
+    "nodemailer": "^7.0.11",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1"
@@ -96,6 +98,7 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/constant(|/.*)$": "<rootDir>/libs/constant/src/$1",
+      "^@app/mailer(|/.*)$": "<rootDir>/libs/mailer/src/$1",
       "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
       "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1",
       "^@app/util(|/.*)$": "<rootDir>/libs/util/src/$1"

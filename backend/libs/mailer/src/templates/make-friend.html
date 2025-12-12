@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lời mời kết bạn</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f4f4f7;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .wrapper {
+        width: 100%;
+        padding: 30px 0;
+      }
+
+      .container {
+        max-width: 600px;
+        background: #ffffff;
+        margin: 0 auto;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      h1 {
+        text-align: center;
+        color: #4f46e5;
+        margin-bottom: 20px;
+      }
+
+      p {
+        color: #333;
+        line-height: 1.6;
+        font-size: 16px;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 12px 22px;
+        margin: 10px 8px;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 8px;
+        font-size: 15px;
+      }
+
+      .accept {
+        background: #16a34a;
+        color: white !important;
+      }
+
+      .reject {
+        background: #dc2626;
+        color: white !important;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 14px;
+        color: #777;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <h1>🤝 Lời mời kết bạn mới</h1>
+
+        <p>Xin chào <strong>{{receiverName}}</strong>,</p>
+
+        <p>
+          Người dùng <strong>{{senderName}}</strong> đã gửi cho bạn một lời mời
+          kết bạn trên <strong>Chat App</strong>.
+        </p>
+
+        <p>Bạn muốn xử lý lời mời này như thế nào?</p>
+
+        <div style="text-align: center; margin-top: 25px">
+          <a href="{{acceptUrl}}" class="btn accept">Chấp nhận</a>
+          <a href="{{rejectUrl}}" class="btn reject">Từ chối</a>
+        </div>
+
+        <p style="margin-top: 25px">
+          Nếu bạn không quen biết người gửi hoặc không muốn kết bạn, bạn có thể
+          chọn từ chối.
+        </p>
+
+        <div class="footer">
+          <p>© {{year}} Chat App — Kết nối mọi người gần nhau hơn.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

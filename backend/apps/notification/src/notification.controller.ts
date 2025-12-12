@@ -1,10 +1,14 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Inject } from '@nestjs/common'
 import { NotificationService } from './notification.service'
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices'
+import { MailerService } from '@app/mailer'
 
 @Controller()
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
+
+  @Inject(MailerService)
+  private readonly mailerService: MailerService
 
   @EventPattern('user.created')
   async handleUserRegistered(@Payload() data, @Ctx() context: RmqContext) {
@@ -17,8 +21,7 @@ export class NotificationController {
         `📧 [Notification Service] Đang gửi email chào mừng tới: ${data.email}...`,
       )
 
-      // Giả lập xử lý tốn thời gian
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await this.mailerService.sendUserConfirmation(data)
 
       console.log('✅ Email đã gửi thành công!')
 
@@ -27,10 +30,23 @@ export class NotificationController {
       channel.ack(originalMsg)
     } catch (error) {
       console.error('❌ Lỗi khi gửi email:', error)
+      // channel.nack(originalMsg)
+    }
+  }
 
-      // Tùy chiến lược:
-      // - channel.nack(originalMsg): Đẩy lại vào hàng đợi để retry
-      // - Hoặc log lỗi và vẫn ack để bỏ qua tin nhắn lỗi (tránh lặp vô tận)
+  @EventPattern('user.makeFriend')
+  async handleMakeFriend(@Payload() data, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef()
+    const originalMsg = context.getMessage()
+    try {
+      console.log(
+        `📧 [Notification Service] Đang gửi email lời mời kết bạn tới: ${data.friendEmail}...`,
+      )
+      await this.mailerService.sendMakeFriendNotification(data)
+      console.log('✅ Email đã gửi thành công!')
+      channel.ack(originalMsg)
+    } catch (error) {
+      console.error('❌ Lỗi khi gửi email:', error)
     }
   }
 }

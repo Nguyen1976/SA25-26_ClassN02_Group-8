@@ -36,7 +36,7 @@ export interface UserLoginResponse {
 }
 
 export interface MakeFriendRequest {
-  userId: string;
+  senderName: string;
   friendEmail: string;
 }
 

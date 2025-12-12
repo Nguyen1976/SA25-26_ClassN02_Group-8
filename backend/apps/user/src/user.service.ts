@@ -61,11 +61,11 @@ export class UserService {
       })
 
     //test emit event to rabbitmq
-    // this.client.emit('user.created', {
-    //   id: res.id,
-    //   email: res.email,
-    //   username: res.username,
-    // })
+    this.client.emit('user.created', {
+      id: res.id,
+      email: res.email,
+      username: res.username,
+    })
     return res
   }
 
@@ -86,6 +86,7 @@ export class UserService {
       email: user.email,
       username: user.username,
     })
+
     return {
       ...user,
       token,
@@ -94,8 +95,25 @@ export class UserService {
 
   async makeFriend(data: MakeFriendRequest): Promise<MakeFriendResponse> {
     //chekc email ton tai
-
+    const friend = await this.prisma.user.findUnique({
+      where: {
+        email: data.friendEmail,
+      },
+    })
+    if (!friend) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Friend not found',
+      })
+    }
     //gui mail moi ban be
+    //username, email nhận
+    this.client.emit('user.makeFriend', {
+      senderName: data.senderName,
+      friendEmail: data.friendEmail,
+      receiverName: friend.username,
+    })
+
     return { status: 'pending' }
   }
 }

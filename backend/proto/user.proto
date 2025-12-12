@@ -33,7 +33,7 @@ message UserLoginResponse {
 }
 
 message MakeFriendRequest {
-  string userId = 1;
+  string senderName = 1;
   string friendEmail = 2;
 }
 

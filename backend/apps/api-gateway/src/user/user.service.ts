@@ -48,7 +48,7 @@ export class UserService implements OnModuleInit {
 
   async makeFriend(dto: any): Promise<MakeFriendResponse> {
     const observable = this.userClient.makeFriend({
-      userId: dto.userId,
+      senderName: dto.username,
       friendEmail: dto.friendEmail,
     } as MakeFriendRequest)
     return await firstValueFrom(observable)

@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common'
 import { CommonService } from './common.service'
-import { AuthGuard } from './auth/auth.guard'
 import { JwtModule } from '@nestjs/jwt'
-
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -14,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt'
         }
       },
     }),
+    
   ],
   providers: [CommonService],
   exports: [CommonService],

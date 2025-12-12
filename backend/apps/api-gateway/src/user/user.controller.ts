@@ -27,10 +27,10 @@ export class UserController {
 
   @Post('make-friend')
   @RequireLogin()
-  async makeFriend(
-    @Body() body: MakeFriendDto,
-    @UserInfo('userId') userId: string,
-  ) {
-    return await this.userService.makeFriend({userId, friendEmail: body.email})
+  async makeFriend(@Body() body: MakeFriendDto, @UserInfo() user: any) {
+    return await this.userService.makeFriend({
+      username: user.username,
+      friendEmail: body.email,
+    })
   }
 }
