@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user;
 
-service UserService {
+service UserGrpcService {
   rpc register (UserRegisterRequest) returns (UserRegisterResponse) {}
   rpc login (UserLoginRequest) returns (UserLoginResponse) {}
   rpc makeFriend (MakeFriendRequest) returns (MakeFriendResponse) {}

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package notification;
+
+import "google/protobuf/timestamp.proto";
+
+service NotificationGrpcService {
+  rpc createNotification (createNotificationRequest) returns (createNotificationResponse) {}
+}
+
+message createNotificationRequest {
+    string inviterId = 1;
+    string inviteeName = 2;
+    string status = 3;
+}
+
+message createNotificationResponse {
+    string id = 1;
+    string userId = 2;
+    string message = 3;
+    bool isRead = 4;
+    google.protobuf.Timestamp createdAt = 5;
+}

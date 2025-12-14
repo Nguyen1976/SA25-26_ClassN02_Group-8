@@ -1,28 +1,37 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ClientsModule, Transport } from '@nestjs/microservices'
-import { USER_PACKAGE_NAME, USER_SERVICE_NAME } from 'interfaces/user.grpc'
+import { Client, ClientsModule, Transport } from '@nestjs/microservices'
+import { USER_GRPC_SERVICE_NAME, USER_PACKAGE_NAME } from 'interfaces/user.grpc'
 import { UserModule } from './user/user.module'
 import { AuthGuard, CommonModule } from '@app/common'
 import { APP_GUARD } from '@nestjs/core'
 import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
 import { RealtimeGateway } from './realtime/realtime.gateway'
 import { RedisModule } from '@app/redis'
+import {
+  NOTIFICATION_GRPC_SERVICE_NAME,
+  NOTIFICATION_PACKAGE_NAME,
+} from 'interfaces/notification.grpc'
+import { CHAT_GRPC_SERVICE_NAME, CHAT_PACKAGE_NAME } from 'interfaces/chat.grpc'
+import { NotificationModule } from './notification/notification.module'
+import { ChatController } from './chat/chat.controller';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: USER_SERVICE_NAME,
+        name: CHAT_GRPC_SERVICE_NAME,
         transport: Transport.GRPC,
         options: {
-          package: USER_PACKAGE_NAME,
-          protoPath: './proto/user.grpc.proto',
-          url: `localhost:${PORT_GRPC.USER_GRPC_PORT}`,
+          package: CHAT_PACKAGE_NAME,
+          protoPath: './proto/chat.grpc.proto',
+          url: `localhost:${PORT_GRPC.CHAT_GRPC_PORT}`,
         },
       },
     ]),
+
     UserModule,
     CommonModule,
     RedisModule.forRoot(
@@ -33,8 +42,10 @@ import { RedisModule } from '@app/redis'
       },
       'REDIS_CLIENT',
     ),
+    NotificationModule,
+    ChatModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ChatController],
   providers: [
     AppService,
     {
@@ -43,6 +54,6 @@ import { RedisModule } from '@app/redis'
     },
     RealtimeGateway,
   ],
-  exports: [ClientsModule, RealtimeGateway],
+  exports: [ClientsModule, RealtimeGateway, NotificationModule],
 })
 export class AppModule {}

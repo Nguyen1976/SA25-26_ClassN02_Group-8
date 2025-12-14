@@ -1,47 +1,30 @@
 import { Controller, Get, Inject } from '@nestjs/common'
 import { NotificationService } from './notification.service'
-import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices'
-import { MailerService } from '@app/mailer'
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
+import {
+  Ctx,
+  EventPattern,
+  GrpcMethod,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices'
+import type {
+  createNotificationRequest,
+  createNotificationResponse,
+  NotificationGrpcServiceController,
+} from 'interfaces/notification.grpc'
+import { Metadata } from '@grpc/grpc-js'
 
 @Controller()
-export class NotificationController {
+export class NotificationController implements NotificationGrpcServiceController {
   constructor(private readonly notificationService: NotificationService) {}
+  //thằng @golevelup/nestjs-rabbitmq sẽ k quét rabbitsub trong controller lên mọi thứ được chuyển thẳng vào trong service
 
-  @RabbitSubscribe({
-    exchange: 'user.events',
-    routingKey: 'user.created',
-    queue: 'notification_queue',
-  })
-  async handleUserRegistered(message: any) {
-    // this.notificationService.handleUserRegistered(data)
-    console.log('Notification received user.created event:')
-  }
-
-  @EventPattern('user.makeFriend')
-  async handleMakeFriend(@Payload() data, @Ctx() context: RmqContext) {
-    const channel = context.getChannelRef()
-    const originalMsg = context.getMessage()
-    try {
-      await this.notificationService.handleMakeFriend(data)
-      channel.ack(originalMsg)
-    } catch (error) {
-      console.error('❌ Lỗi khi gửi email:', error)
-    }
-  }
-
-  @EventPattern('user.updateStatusMakeFriend')
-  async handleUpdateStatusMakeFriend(
-    @Payload() data,
-    @Ctx() context: RmqContext,
-  ) {
-    const channel = context.getChannelRef()
-    const originalMsg = context.getMessage()
-    try {
-      await this.notificationService.handleUpdateStatusMakeFriend(data)
-      channel.ack(originalMsg)
-    } catch (error) {
-      // console.error('❌ Lỗi khi gửi email:', error)
-    }
+  @GrpcMethod('NotificationGrpcService', 'createNotification')
+  async createNotification(
+    data: createNotificationRequest,
+    metadata: Metadata,
+  ): Promise<any> {
+    const res = await this.notificationService.createNotification(data)
+    return res
   }
 }

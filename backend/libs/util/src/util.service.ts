@@ -12,4 +12,9 @@ export class UtilService {
     const isMatch = await bcrypt.compare(password, hash)
     return isMatch
   }
+
+  dateToTimestamp = (date: Date) => ({
+    seconds: Math.floor(date.getTime() / 1000),
+    nanos: (date.getTime() % 1000) * 1e6,
+  })
 }

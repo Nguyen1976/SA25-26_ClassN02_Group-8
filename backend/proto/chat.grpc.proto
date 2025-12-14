@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatGrpcService {
+  rpc getMessage (GetMessageRequest) returns (GetMessageResponse) {}
+}
+
+message GetMessageRequest {
+
+}
+
+message GetMessageResponse {
+    
+}

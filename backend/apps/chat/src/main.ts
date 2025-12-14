@@ -1,22 +1,18 @@
 import { NestFactory } from '@nestjs/core'
 import { ChatModule } from './chat.module'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
+import { CHAT_PACKAGE_NAME } from 'interfaces/chat.grpc'
+import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     ChatModule,
     {
-      transport: Transport.RMQ,
+      transport: Transport.GRPC,
       options: {
-        urls: ['amqp://localhost:5672'],
-        queue: 'chat_queue',
-        noAck: false,
-        queueOptions: {
-          durable: true,
-        },
-        exchange: 'user.events',
-        exchangeType: 'topic',
-        prefetchCount: 1,
+        package: CHAT_PACKAGE_NAME,
+        protoPath: './proto/chat.grpc.proto',
+        url: `localhost:${PORT_GRPC.CHAT_GRPC_PORT}`,
       },
     },
   )

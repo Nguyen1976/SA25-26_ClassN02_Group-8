@@ -2,23 +2,22 @@ import { Controller, Inject } from '@nestjs/common'
 import { UserService } from './user.service'
 import { GrpcMethod, MessagePattern } from '@nestjs/microservices'
 import type { Metadata, ServerUnaryCall } from '@grpc/grpc-js'
-import type {
-  MakeFriendRequest,
-  MakeFriendResponse,
-  UpdateStatusRequest,
-  UpdateStatusResponse,
-  UserRegisterRequest,
-  UserRegisterResponse,
-  UserServiceController,
+import {
+  USER_GRPC_SERVICE_NAME,
+  type MakeFriendRequest,
+  type MakeFriendResponse,
+  type UpdateStatusRequest,
+  type UpdateStatusResponse,
+  type UserGrpcServiceController,
+  type UserRegisterRequest,
+  type UserRegisterResponse,
 } from 'interfaces/user.grpc'
-import { EXCHANGE } from '@app/common/constants/exchange'
-import type { Channel } from 'amqplib'
 
 @Controller()
-export class UserController implements UserServiceController {
+export class UserController implements UserGrpcServiceController {
   constructor(private readonly userService: UserService) {}
 
-  @GrpcMethod('UserService', 'register')
+  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'register')
   async register(
     data: UserRegisterRequest,
     metadata: Metadata,
@@ -27,13 +26,13 @@ export class UserController implements UserServiceController {
     return res
   }
 
-  @GrpcMethod('UserService', 'login')
+  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'login')
   async login(data: any, metadata: Metadata): Promise<any> {
     const res = await this.userService.login(data)
     return res
   }
 
-  @GrpcMethod('UserService', 'makeFriend')
+  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'makeFriend')
   async makeFriend(
     data: MakeFriendRequest,
     metadata: Metadata,
@@ -42,7 +41,7 @@ export class UserController implements UserServiceController {
     return res
   }
 
-  @GrpcMethod('UserService', 'updateStatusMakeFriend')
+  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'updateStatusMakeFriend')
   async updateStatusMakeFriend(
     data: UpdateStatusRequest,
     metadata: Metadata,

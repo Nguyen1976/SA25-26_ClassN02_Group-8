@@ -5,6 +5,7 @@ import { MailerModule } from '@app/mailer'
 import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from '@app/prisma'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { UtilModule } from '@app/util'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
       uri: 'amqp://localhost:5672',
       connectionInitOptions: { wait: true },
     }),
+    UtilModule
   ],
   controllers: [NotificationController],
   providers: [NotificationService],

@@ -58,7 +58,7 @@ export interface UpdateStatusResponse {
 
 export const USER_PACKAGE_NAME = "user";
 
-export interface UserServiceClient {
+export interface UserGrpcServiceClient {
   register(request: UserRegisterRequest, metadata?: Metadata): Observable<UserRegisterResponse>;
 
   login(request: UserLoginRequest, metadata?: Metadata): Observable<UserLoginResponse>;
@@ -68,7 +68,7 @@ export interface UserServiceClient {
   updateStatusMakeFriend(request: UpdateStatusRequest, metadata?: Metadata): Observable<UpdateStatusResponse>;
 }
 
-export interface UserServiceController {
+export interface UserGrpcServiceController {
   register(
     request: UserRegisterRequest,
     metadata?: Metadata,
@@ -90,19 +90,19 @@ export interface UserServiceController {
   ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
 }
 
-export function UserServiceControllerMethods() {
+export function UserGrpcServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = ["register", "login", "makeFriend", "updateStatusMakeFriend"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      GrpcMethod("UserGrpcService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      GrpcStreamMethod("UserGrpcService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const USER_SERVICE_NAME = "UserService";
+export const USER_GRPC_SERVICE_NAME = "UserGrpcService";

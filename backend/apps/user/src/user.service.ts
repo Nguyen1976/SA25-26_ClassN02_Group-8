@@ -113,11 +113,11 @@ export class UserService {
     }
     //gui mail moi ban be
     //username, email nhận
-    // this.client.emit('user.makeFriend', {
-    //   senderName: data.senderName,
-    //   friendEmail: data.friendEmail,
-    //   receiverName: friend.username,
-    // })
+    this.amqpConnection.publish('user.events', 'user.makeFriend', {
+      senderName: data.senderName,
+      friendEmail: data.friendEmail,
+      receiverName: friend.username,
+    })
 
     const res = await this.prisma.friendRequest.create({
       data: {
@@ -182,13 +182,13 @@ export class UserService {
         },
       })
     }
+    //loại bỏ phần này lên để gateway điều phối
     //bắn message qua notification kèm theo status và trạng thái online của ô còn lại
-    // this.client.emit('user.updateStatusMakeFriend', {
+    // this.amqpConnection.publish('user.events', 'user.updateStatusMakeFriend', {
     //   inviterId: data.inviterId,
     //   inviteeName: inventee ? inventee.username : '',
     //   inviteeId: data.inviteeId,
     //   status: data.status,
-    //   inviterStatus: data.inviterStatus,
     // })
     return { status: 'SUCCESS' }
   }
