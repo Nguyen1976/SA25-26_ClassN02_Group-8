@@ -34,13 +34,13 @@ message UserLoginResponse {
 }
 
 message MakeFriendRequest {
-  string senderId = 1;
-  string friendEmail = 2;
-  string senderName = 3;
+  string inviterId = 1;
+  string inviteeEmail = 2;
+  string inviterName = 3;
 }
 
 message MakeFriendResponse {
-  string status = 1;
+  bool inviteeStatus = 1;
 }
 
 message UpdateStatusRequest {

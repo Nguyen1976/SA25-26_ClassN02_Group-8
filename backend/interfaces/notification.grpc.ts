@@ -16,6 +16,7 @@ export interface createNotificationRequest {
   inviterId: string;
   inviteeName: string;
   status: string;
+  type: string;
 }
 
 export interface createNotificationResponse {
@@ -23,6 +24,7 @@ export interface createNotificationResponse {
   userId: string;
   message: string;
   isRead: boolean;
+  type: string;
   createdAt: Timestamp | undefined;
 }
 

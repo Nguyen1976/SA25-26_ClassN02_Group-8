@@ -1,6 +1,5 @@
 import { PrismaService } from '@app/prisma/prisma.service'
 import { UtilService } from '@app/util'
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConversationType } from 'interfaces/chat'
 import {
@@ -9,7 +8,6 @@ import {
   SendMessageResponse,
   type CreateConversationResponse,
 } from 'interfaces/chat.grpc'
-import { FriendRequestStatus } from 'interfaces/user'
 
 @Injectable()
 export class ChatService {

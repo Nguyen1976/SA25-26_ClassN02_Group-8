@@ -5,7 +5,6 @@ import {
   NOTIFICATION_GRPC_SERVICE_NAME,
   NotificationGrpcServiceClient,
 } from 'interfaces/notification.grpc'
-import { RealtimeGateway } from '../realtime/realtime.gateway'
 import type { ClientGrpc } from '@nestjs/microservices'
 import { firstValueFrom } from 'rxjs/internal/firstValueFrom'
 

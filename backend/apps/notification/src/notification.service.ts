@@ -3,7 +3,6 @@ import { PrismaService } from '@app/prisma'
 import { UtilService } from '@app/util'
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Inject, Injectable } from '@nestjs/common'
-import { createNotificationResponse } from 'interfaces/notification.grpc'
 import { FriendRequestStatus } from 'interfaces/user'
 
 @Injectable()
@@ -55,7 +54,7 @@ export class NotificationService {
       data: {
         userId: data.inviterId,
         message,
-        type: 'normal_notification',
+        type: data.type,
       },
     })
     return {
@@ -63,6 +62,7 @@ export class NotificationService {
       userId: res.userId,
       message: res.message,
       isRead: res.isRead,
+      type: res.type,
       createdAt: this.utilService.dateToTimestamp(res.createdAt),
     } as unknown
   }

@@ -1,16 +1,11 @@
-import { Controller, Get, Inject } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { NotificationService } from './notification.service'
 import {
-  Ctx,
-  EventPattern,
   GrpcMethod,
-  Payload,
-  RmqContext,
 } from '@nestjs/microservices'
 import {
   NOTIFICATION_GRPC_SERVICE_NAME,
   type createNotificationRequest,
-  type createNotificationResponse,
   type NotificationGrpcServiceController,
 } from 'interfaces/notification.grpc'
 import { Metadata } from '@grpc/grpc-js'

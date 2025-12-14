@@ -36,13 +36,13 @@ export interface UserLoginResponse {
 }
 
 export interface MakeFriendRequest {
-  senderId: string;
-  friendEmail: string;
-  senderName: string;
+  inviterId: string;
+  inviteeEmail: string;
+  inviterName: string;
 }
 
 export interface MakeFriendResponse {
-  status: string;
+  inviteeStatus: boolean;
 }
 
 export interface UpdateStatusRequest {

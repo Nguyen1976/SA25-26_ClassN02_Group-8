@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
-import { LoginUserDto, MakeFriendDto, RegisterUserDto } from './dto/user.dto'
+import { LoginUserDto, RegisterUserDto } from './dto/user.dto'
 import {
   MakeFriendRequest,
   MakeFriendResponse,
@@ -12,11 +12,12 @@ import {
   UserRegisterResponse,
 } from 'interfaces/user.grpc'
 import type { ClientGrpc } from '@nestjs/microservices'
-import { catchError, firstValueFrom, throwError } from 'rxjs'
+import { firstValueFrom } from 'rxjs'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { FriendRequestStatus } from 'interfaces/user'
 import { NotificationService } from '../notification/notification.service'
 import { ChatService } from '../chat/chat.service'
+import { NotificationType } from 'interfaces/notification'
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -52,13 +53,31 @@ export class UserService implements OnModuleInit {
     return await firstValueFrom(observable)
   }
 
-  async makeFriend(dto: any): Promise<MakeFriendResponse> {
+  async makeFriend(dto: any): Promise<any> {
     const observable = this.userClientService.makeFriend({
-      senderId: dto.senderId,
-      senderName: dto.username,
-      friendEmail: dto.friendEmail,
+      inviterId: dto.inviterId,
+      inviterName: dto.inviterName,
+      inviteeEmail: dto.inviteeEmail,
     } as MakeFriendRequest)
-    return await firstValueFrom(observable)
+
+    const res: MakeFriendResponse = await firstValueFrom(observable)
+    //check online and create notification
+    const inviteeStatus = res.inviteeStatus
+    if (inviteeStatus) {
+      let createdNotification =
+        await this.notificationService.createNotification({
+          inviterId: dto.inviterId,
+          inviteeName: dto.inviteeName,
+          status: FriendRequestStatus.PENDING,
+          type: NotificationType.FRIEND_REQUEST,
+        })
+      this.realtimeGateway.emitToUser(
+        [dto.inviteeId],
+        'new-friend-request',
+        createdNotification,
+      )
+    }
+    return { status: 'SUCCESS' }
   }
 
   async updateStatusMakeFriend(dto: any): Promise<UpdateStatusResponse> {
@@ -77,6 +96,7 @@ export class UserService implements OnModuleInit {
         inviterId: dto.inviterId,
         inviteeName: dto.inviteeName,
         status: dto.status,
+        type: NotificationType.NORMAL_NOTIFICATION,
       },
     )
 
@@ -102,7 +122,7 @@ export class UserService implements OnModuleInit {
         )
       }
     }
-    
+
     return await firstValueFrom(observable)
   }
 }

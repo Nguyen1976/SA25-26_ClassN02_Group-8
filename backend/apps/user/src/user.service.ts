@@ -4,8 +4,7 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { status } from '@grpc/grpc-js'
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { ClientProxy, RpcException } from '@nestjs/microservices'
-import { stat } from 'fs'
+import { RpcException } from '@nestjs/microservices'
 import { FriendRequestStatus } from 'interfaces/user'
 import {
   MakeFriendRequest,
@@ -102,7 +101,7 @@ export class UserService {
     //chekc email ton tai
     const friend = await this.prisma.user.findUnique({
       where: {
-        email: data.friendEmail,
+        email: data.inviteeEmail,
       },
     })
     if (!friend) {
@@ -113,21 +112,29 @@ export class UserService {
     }
     //gui mail moi ban be
     //username, email nhận
-    this.amqpConnection.publish('user.events', 'user.makeFriend', {
-      senderName: data.senderName,
-      friendEmail: data.friendEmail,
-      receiverName: friend.username,
-    })
+
+    //check user onlien
+    const inviteeId = friend.id
+    const socketCount = await this.redis.scard(`user:${inviteeId}:sockets`)
+    let inviteeStatus = socketCount > 0
+    if (!inviteeStatus) {
+      //nếu offline thì gửi mail
+      this.amqpConnection.publish('user.events', 'user.makeFriend', {
+        inviterName: data.inviterName,
+        inviteeEmail: data.inviteeEmail,
+        receiverName: friend.username,
+      })
+    }
 
     const res = await this.prisma.friendRequest.create({
       data: {
-        fromUserId: data.senderId,
+        fromUserId: data.inviterId,
         toUserId: friend.id,
         status: FriendRequestStatus.PENDING,
       },
     })
 
-    return { status: res.status }
+    return { inviteeStatus }
   }
 
   async updateStatusMakeFriend(

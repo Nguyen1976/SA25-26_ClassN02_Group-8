@@ -1,7 +1,7 @@
-import { Controller, Inject } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { UserService } from './user.service'
-import { GrpcMethod, MessagePattern } from '@nestjs/microservices'
-import type { Metadata, ServerUnaryCall } from '@grpc/grpc-js'
+import { GrpcMethod } from '@nestjs/microservices'
+import type { Metadata } from '@grpc/grpc-js'
 import {
   USER_GRPC_SERVICE_NAME,
   type MakeFriendRequest,

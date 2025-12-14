@@ -1,19 +1,12 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { Client, ClientsModule, Transport } from '@nestjs/microservices'
-import { USER_GRPC_SERVICE_NAME, USER_PACKAGE_NAME } from 'interfaces/user.grpc'
+
 import { UserModule } from './user/user.module'
 import { AuthGuard, CommonModule } from '@app/common'
 import { APP_GUARD } from '@nestjs/core'
-import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
 import { RealtimeGateway } from './realtime/realtime.gateway'
 import { RedisModule } from '@app/redis'
-import {
-  NOTIFICATION_GRPC_SERVICE_NAME,
-  NOTIFICATION_PACKAGE_NAME,
-} from 'interfaces/notification.grpc'
-import { CHAT_GRPC_SERVICE_NAME, CHAT_PACKAGE_NAME } from 'interfaces/chat.grpc'
 import { NotificationModule } from './notification/notification.module'
 import { ChatController } from './chat/chat.controller'
 import { ChatModule } from './chat/chat.module'

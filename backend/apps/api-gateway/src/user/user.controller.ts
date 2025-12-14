@@ -1,11 +1,7 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import {
@@ -34,9 +30,9 @@ export class UserController {
   @RequireLogin()
   async makeFriend(@Body() body: MakeFriendDto, @UserInfo() user: any) {
     return await this.userService.makeFriend({
-      senderId: user.userId,
-      username: user.username,
-      friendEmail: body.email,
+      inviterId: user.userId,
+      inviterName: user.username,
+      inviteeEmail: body.email,
     })
   }
 

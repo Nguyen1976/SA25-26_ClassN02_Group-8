@@ -1,11 +1,7 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { ChatService } from './chat.service'
 import {
-  Ctx,
-  EventPattern,
   GrpcMethod,
-  Payload,
-  RmqContext,
 } from '@nestjs/microservices'
 import {
   CHAT_GRPC_SERVICE_NAME,
