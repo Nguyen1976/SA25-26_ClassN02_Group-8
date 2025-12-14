@@ -15,7 +15,6 @@ export class NotificationService implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_GRPC_SERVICE_NAME)
     private notificationClient: ClientGrpc,
-    @Inject(RealtimeGateway) private realtimeGateway: RealtimeGateway,
   ) {}
 
   onModuleInit() {

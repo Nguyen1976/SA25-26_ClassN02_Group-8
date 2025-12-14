@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt'
       useFactory() {
         return {
           secret: 'my_key',
-          signOptions: { expiresIn: '60m' },
+          signOptions: { expiresIn: '7d' },
         }
       },
     }),

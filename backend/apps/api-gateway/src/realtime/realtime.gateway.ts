@@ -77,13 +77,15 @@ export class RealtimeGateway
     }
   }
 
-  async emitToUser(userId: string, event: string, data: any) {
-    const sockets = (await this.userStatusStore.getUserSockets(
-      userId,
-    )) as string[]
-    sockets.forEach((socketId) => {
-      this.server.to(socketId).emit(event, data)
-    })
+  async emitToUser(userIds: string[], event: string, data: any) {
+    for (const userId of userIds) {
+      const sockets = (await this.userStatusStore.getUserSockets(
+        userId,
+      )) as string[]
+      sockets.forEach((socketId) => {
+        this.server.to(socketId).emit(event, data)
+      })
+    }
   }
 
   async checkUserOnline(userId: string): Promise<boolean> {

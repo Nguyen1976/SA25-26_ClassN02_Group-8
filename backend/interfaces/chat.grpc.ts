@@ -11,28 +11,39 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "chat";
 
-export interface GetMessageRequest {
+export interface CreateConversationRequest {
+  type: string;
+  memberIds: string[];
+  groupName?: string | undefined;
+  groupAvatar?: string | undefined;
+  createrId?: string | undefined;
 }
 
-export interface GetMessageResponse {
+export interface CreateConversationResponse {
+  id: string;
+  memberIds: string[];
+  type: string;
+  groupName?: string | undefined;
+  groupAvatar?: string | undefined;
+  adminId?: string | undefined;
 }
 
 export const CHAT_PACKAGE_NAME = "chat";
 
 export interface ChatGrpcServiceClient {
-  getMessage(request: GetMessageRequest, metadata?: Metadata): Observable<GetMessageResponse>;
+  createConversation(request: CreateConversationRequest, metadata?: Metadata): Observable<CreateConversationResponse>;
 }
 
 export interface ChatGrpcServiceController {
-  getMessage(
-    request: GetMessageRequest,
+  createConversation(
+    request: CreateConversationRequest,
     metadata?: Metadata,
-  ): Promise<GetMessageResponse> | Observable<GetMessageResponse> | GetMessageResponse;
+  ): Promise<CreateConversationResponse> | Observable<CreateConversationResponse> | CreateConversationResponse;
 }
 
 export function ChatGrpcServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getMessage"];
+    const grpcMethods: string[] = ["createConversation"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ChatGrpcService", method)(constructor.prototype[method], method, descriptor);

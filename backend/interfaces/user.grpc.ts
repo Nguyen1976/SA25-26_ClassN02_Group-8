@@ -49,7 +49,6 @@ export interface UpdateStatusRequest {
   inviteeId: string;
   status: string;
   inviterId: string;
-  inviterStatus: boolean;
 }
 
 export interface UpdateStatusResponse {

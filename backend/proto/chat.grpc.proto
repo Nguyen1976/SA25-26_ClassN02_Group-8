@@ -3,13 +3,22 @@ syntax = "proto3";
 package chat;
 
 service ChatGrpcService {
-  rpc getMessage (GetMessageRequest) returns (GetMessageResponse) {}
+  rpc createConversation (CreateConversationRequest) returns (CreateConversationResponse) {}
 }
 
-message GetMessageRequest {
-
+message CreateConversationRequest {
+    string type = 1;
+    repeated string memberIds = 2;
+    optional string groupName = 3;
+    optional string groupAvatar = 4;
+    optional string createrId = 5;
 }
 
-message GetMessageResponse {
-    
+message CreateConversationResponse {
+    string id = 1;
+    repeated string memberIds = 2;
+    string type = 3;
+    optional string groupName = 4;
+    optional string groupAvatar = 5;
+    optional string adminId = 6;
 }

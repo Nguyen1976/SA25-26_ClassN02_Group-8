@@ -15,23 +15,11 @@ import {
 } from 'interfaces/notification.grpc'
 import { CHAT_GRPC_SERVICE_NAME, CHAT_PACKAGE_NAME } from 'interfaces/chat.grpc'
 import { NotificationModule } from './notification/notification.module'
-import { ChatController } from './chat/chat.controller';
-import { ChatModule } from './chat/chat.module';
+import { ChatController } from './chat/chat.controller'
+import { ChatModule } from './chat/chat.module'
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: CHAT_GRPC_SERVICE_NAME,
-        transport: Transport.GRPC,
-        options: {
-          package: CHAT_PACKAGE_NAME,
-          protoPath: './proto/chat.grpc.proto',
-          url: `localhost:${PORT_GRPC.CHAT_GRPC_PORT}`,
-        },
-      },
-    ]),
-
     UserModule,
     CommonModule,
     RedisModule.forRoot(
@@ -54,6 +42,6 @@ import { ChatModule } from './chat/chat.module';
     },
     RealtimeGateway,
   ],
-  exports: [ClientsModule, RealtimeGateway, NotificationModule],
+  exports: [RealtimeGateway, NotificationModule, ChatModule],
 })
 export class AppModule {}

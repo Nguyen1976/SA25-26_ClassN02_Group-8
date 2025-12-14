@@ -16,6 +16,7 @@ import { catchError, firstValueFrom, throwError } from 'rxjs'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { FriendRequestStatus } from 'interfaces/user'
 import { NotificationService } from '../notification/notification.service'
+import { ChatService } from '../chat/chat.service'
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -25,6 +26,7 @@ export class UserService implements OnModuleInit {
     @Inject(RealtimeGateway) private realtimeGateway: RealtimeGateway,
     @Inject(NotificationService)
     private notificationService: NotificationService,
+    @Inject(ChatService) private chatService: ChatService,
   ) {}
 
   onModuleInit() {
@@ -67,26 +69,39 @@ export class UserService implements OnModuleInit {
       status: dto.status as FriendRequestStatus,
       inviteeId: dto.inviteeId,
       inviterId: dto.inviterId,
-      inviterStatus,
     })
 
     //xử lý tạo bản ghi notification r emit về
-    let createdNotification = await this.notificationService.createNotification({
-      inviterId: dto.inviterId,
-      inviteeName: dto.inviteeName,
-      status: dto.status,
+    let createdNotification = await this.notificationService.createNotification(
+      {
+        inviterId: dto.inviterId,
+        inviteeName: dto.inviteeName,
+        status: dto.status,
+      },
+    )
+
+    //xử lý tạo conversation rồi emit về
+    let createdConversation = await this.chatService.createConversation({
+      type: 'DIRECT',
+      memberIds: [dto.inviterId, dto.inviteeId],
     })
+
     //ở đây sẽ xử lý socket
     if (inviterStatus) {
       this.realtimeGateway.emitToUser(
-        dto.inviterId,
+        [dto.inviterId],
         'update-friend-request-status',
         //trả về bản ghi thông báo luôn
-        createdNotification
+        createdNotification,
       )
+      if (dto.status === FriendRequestStatus.ACCEPT) {
+        this.realtimeGateway.emitToUser(
+          [dto.inviteeId, dto.inviterId],
+          'new-conversation',
+          createdConversation,
+        )
+      }
     }
-
-    //xử lý tạo conversation rồi emit về
 
     return await firstValueFrom(observable)
   }
