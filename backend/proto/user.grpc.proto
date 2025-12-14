@@ -41,6 +41,8 @@ message MakeFriendRequest {
 
 message MakeFriendResponse {
   bool inviteeStatus = 1;
+  string inviteeName = 2;
+  string inviteeId = 3;
 }
 
 message UpdateStatusRequest {

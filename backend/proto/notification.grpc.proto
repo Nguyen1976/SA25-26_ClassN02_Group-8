@@ -11,7 +11,7 @@ service NotificationGrpcService {
 message createNotificationRequest {
     string inviterId = 1;
     string inviteeName = 2;
-    string status = 3;
+    string message = 3;
     string type = 4;
 }
 

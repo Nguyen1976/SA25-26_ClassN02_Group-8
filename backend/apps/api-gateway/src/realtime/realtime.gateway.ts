@@ -13,6 +13,7 @@ import { JwtService } from '@nestjs/jwt'
 import { Inject, Injectable } from '@nestjs/common'
 import { ChatService } from '../chat/chat.service'
 import { SOCKET_EVENTS } from 'libs/constant/socket.events'
+import type { SendMessagePayload } from 'libs/constant/socket.payload'
 
 //nếu k đặt tên cổng thì nó sẽ trùng với cổng của http
 @Injectable()
@@ -104,7 +105,7 @@ export class RealtimeGateway
 
   @SubscribeMessage(SOCKET_EVENTS.CHAT.SEND_MESSAGE)
   async handleSendMessage(
-    @MessageBody() data: any,
+    @MessageBody() data: SendMessagePayload,
     @ConnectedSocket() client: Socket,
   ) {
     //gọi chat service để lưu tin nhắn
@@ -122,7 +123,7 @@ export class RealtimeGateway
       conversationId: data.conversationId,
       senderId: client.data.userId,
       message: data.message,
-      replyToMessageId: data.replyToMessageId,
+      replyToMessageId: data.replyToMessageId || '',
     })
     /**
        * Message saved: {

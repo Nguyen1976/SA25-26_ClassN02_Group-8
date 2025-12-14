@@ -134,7 +134,11 @@ export class UserService {
       },
     })
 
-    return { inviteeStatus }
+    return {
+      inviteeStatus,
+      inviteeName: friend.username,
+      inviteeId: friend.id,
+    } as MakeFriendResponse
   }
 
   async updateStatusMakeFriend(
@@ -189,27 +193,6 @@ export class UserService {
         },
       })
     }
-    //loại bỏ phần này lên để gateway điều phối
-    //bắn message qua notification kèm theo status và trạng thái online của ô còn lại
-    // this.amqpConnection.publish('user.events', 'user.updateStatusMakeFriend', {
-    //   inviterId: data.inviterId,
-    //   inviteeName: inventee ? inventee.username : '',
-    //   inviteeId: data.inviteeId,
-    //   status: data.status,
-    // })
     return { status: 'SUCCESS' }
   }
 }
-
-/**
- * model friendRequest {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  fromUserId String @db.ObjectId
-  toUserId String @db.ObjectId
-  status Status @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
- * 
- * 
- */

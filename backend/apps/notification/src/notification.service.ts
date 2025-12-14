@@ -3,7 +3,6 @@ import { PrismaService } from '@app/prisma'
 import { UtilService } from '@app/util'
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Inject, Injectable } from '@nestjs/common'
-import { FriendRequestStatus } from 'interfaces/user'
 
 @Injectable()
 export class NotificationService {
@@ -44,16 +43,11 @@ export class NotificationService {
     //  inviterId: data.inviterId,
     //     inviteeName: inventee ? inventee.username : '',
     //     status: data.status,
-    let message = ''
-    if (data.status === FriendRequestStatus.ACCEPT) {
-      message = `Friend request to ${data.inviteeName} has been accepted.`
-    } else {
-      message = `Friend request to ${data.inviteeName} has been rejected.`
-    }
+   
     const res = await this.prisma.notification.create({
       data: {
         userId: data.inviterId,
-        message,
+        message: data.message,
         type: data.type,
       },
     })

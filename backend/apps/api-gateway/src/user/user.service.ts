@@ -55,6 +55,7 @@ export class UserService implements OnModuleInit {
   }
 
   async makeFriend(dto: any): Promise<any> {
+    //tạo bạn ghi trong user service
     const observable = this.userClientService.makeFriend({
       inviterId: dto.inviterId,
       inviterName: dto.inviterName,
@@ -63,17 +64,16 @@ export class UserService implements OnModuleInit {
 
     const res: MakeFriendResponse = await firstValueFrom(observable)
     //check online and create notification
-    const inviteeStatus = res.inviteeStatus
-    if (inviteeStatus) {
+    if (res.inviteeStatus) {
       let createdNotification =
         await this.notificationService.createNotification({
           inviterId: dto.inviterId,
-          inviteeName: dto.inviteeName,
-          status: FriendRequestStatus.PENDING,
+          inviteeName: res.inviteeName,
+          message: `You have a new friend request to ${res.inviteeName}.`,
           type: NotificationType.FRIEND_REQUEST,
         })
       this.realtimeGateway.emitToUser(
-        [dto.inviteeId],
+        [res.inviteeId],
         SOCKET_EVENTS.USER.NEW_FRIEND_REQUEST,
         createdNotification,
       )
@@ -96,7 +96,7 @@ export class UserService implements OnModuleInit {
       {
         inviterId: dto.inviterId,
         inviteeName: dto.inviteeName,
-        status: dto.status,
+        message: `Friend request to ${dto.inviteeName} has been ${dto.status.toLowerCase()}.`,
         type: NotificationType.NORMAL_NOTIFICATION,
       },
     )

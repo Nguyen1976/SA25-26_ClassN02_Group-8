@@ -15,7 +15,7 @@ export const protobufPackage = "notification";
 export interface createNotificationRequest {
   inviterId: string;
   inviteeName: string;
-  status: string;
+  message: string;
   type: string;
 }
 
