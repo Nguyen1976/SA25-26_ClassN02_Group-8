@@ -5,6 +5,7 @@ type InComeMessageProps = {
   text?: string
   time?: string
   reactions?: Reaction[]
+  theme?: 'light' | 'dark'
 }
 
 const InComeMessage = ({
@@ -13,7 +14,16 @@ const InComeMessage = ({
   text = "Hey Bob, how's it going?",
   time = '11:22',
   reactions = [{ emoji: '❤️', count: 3 }],
+  theme = 'light',
 }: InComeMessageProps) => {
+  const bubble =
+    theme === 'dark' ? 'bg-[#161b24] text-gray-100' : 'bg-white text-gray-800'
+  const bubbleBorder = theme === 'dark' ? 'border border-[#1f2633]' : ''
+  const timeColor = theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+  const reactionBg =
+    theme === 'dark'
+      ? 'bg-[#11151c] border border-[#1f2633] text-gray-200'
+      : 'bg-white border border-gray-200'
   return (
     <div className='group flex items-end gap-2 mb-3'>
       <img
@@ -22,13 +32,25 @@ const InComeMessage = ({
         className='w-8 h-8 rounded-full shrink-0'
       />
       <div>
-        {name ? <div className='text-xs text-gray-500 mb-1'>{name}</div> : null}
-        <div className='relative max-w-[70%] bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm'>
-          <p className='text-gray-800 leading-relaxed'>{text}</p>
+        {name ? (
+          <div
+            className={`text-xs mb-1 ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+            }`}
+          >
+            {name}
+          </div>
+        ) : null}
+        <div
+          className={`relative max-w-[70%] rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm ${bubble} ${bubbleBorder}`}
+        >
+          <p className='leading-relaxed'>{text}</p>
           <div className='mt-1 flex items-center gap-2'>
-            <span className='text-[11px] text-gray-400'>{time}</span>
+            <span className={`text-[11px] ${timeColor}`}>{time}</span>
             {reactions.length ? (
-              <div className='flex items-center gap-1 text-[11px] bg-white border border-gray-200 rounded-full px-2 py-0.5 shadow-sm'>
+              <div
+                className={`flex items-center gap-1 text-[11px] rounded-full px-2 py-0.5 shadow-sm ${reactionBg}`}
+              >
                 {reactions.map((r, i) => (
                   <span key={i} className='flex items-center gap-1'>
                     <span>{r.emoji}</span>
@@ -40,11 +62,19 @@ const InComeMessage = ({
               </div>
             ) : null}
           </div>
-          <span className='absolute -left-1 top-2 w-2 h-2 bg-white rotate-45'></span>
+          <span
+            className={`absolute -left-1 top-2 w-2 h-2 rotate-45 ${
+              theme === 'dark' ? 'bg-[#161b24]' : 'bg-white'
+            }`}
+          ></span>
         </div>
       </div>
       <button
-        className='opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-gray-600 p-1 rounded'
+        className={`opacity-0 group-hover:opacity-100 transition p-1 rounded ${
+          theme === 'dark'
+            ? 'text-gray-500 hover:text-gray-300'
+            : 'text-gray-400 hover:text-gray-600'
+        }`}
         title='More'
       >
         <svg

@@ -5,6 +5,7 @@ type OutMessageProps = {
   time?: string
   reactions?: Reaction[]
   status?: 'sent' | 'delivered' | 'seen'
+  theme?: 'light' | 'dark'
 }
 
 const OutMessage = ({
@@ -13,11 +14,23 @@ const OutMessage = ({
   time = '12:38',
   reactions = [],
   status = 'seen',
+  theme = 'light',
 }: OutMessageProps) => {
+  const bubble =
+    theme === 'dark' ? 'bg-indigo-600 text-white' : 'bg-indigo-500 text-white'
+  const reactionBg =
+    theme === 'dark'
+      ? 'bg-indigo-500/40 border-indigo-400/40'
+      : 'bg-indigo-400/30 border-indigo-300/40'
+  const timeColor = theme === 'dark' ? 'text-indigo-100' : 'text-indigo-100'
+  const moreColor =
+    theme === 'dark'
+      ? 'text-gray-500 hover:text-gray-300'
+      : 'text-gray-400 hover:text-gray-600'
   return (
     <div className='group flex justify-end items-end gap-2 mb-3'>
       <button
-        className='opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-gray-600 p-1 rounded order-1'
+        className={`opacity-0 group-hover:opacity-100 transition p-1 rounded order-1 ${moreColor}`}
         title='More'
       >
         <svg
@@ -30,12 +43,16 @@ const OutMessage = ({
         </svg>
       </button>
       <div className='order-2'>
-        <div className='relative max-w-[70%] bg-indigo-500 text-white rounded-2xl rounded-tr-sm px-3 py-2 shadow-sm'>
+        <div
+          className={`relative max-w-[70%] rounded-2xl rounded-tr-sm px-3 py-2 shadow-sm ${bubble}`}
+        >
           <p className='leading-relaxed'>{text}</p>
           <div className='mt-1 flex items-center gap-2'>
-            <span className='text-[11px] text-indigo-100'>{time}</span>
+            <span className={`text-[11px] ${timeColor}`}>{time}</span>
             {reactions.length ? (
-              <div className='flex items-center gap-1 text-[11px] bg-indigo-400/30 border border-indigo-300/40 rounded-full px-2 py-0.5'>
+              <div
+                className={`flex items-center gap-1 text-[11px] rounded-full px-2 py-0.5 ${reactionBg}`}
+              >
                 {reactions.map((r, i) => (
                   <span key={i} className='flex items-center gap-1'>
                     <span>{r.emoji}</span>
@@ -44,7 +61,7 @@ const OutMessage = ({
                 ))}
               </div>
             ) : null}
-            <span className='text-[11px] text-indigo-100'>
+            <span className={`text-[11px] ${timeColor}`}>
               {status === 'seen'
                 ? 'Đã xem'
                 : status === 'delivered'
@@ -52,7 +69,11 @@ const OutMessage = ({
                 : 'Đã gửi'}
             </span>
           </div>
-          <span className='absolute -right-1 top-2 w-2 h-2 bg-indigo-500 rotate-45'></span>
+          <span
+            className={`absolute -right-1 top-2 w-2 h-2 rotate-45 ${
+              theme === 'dark' ? 'bg-indigo-600' : 'bg-indigo-500'
+            }`}
+          ></span>
         </div>
       </div>
       <img
