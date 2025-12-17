@@ -4,7 +4,7 @@ import { UserController } from './user.controller'
 import { AppModule } from '../app.module'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { USER_GRPC_SERVICE_NAME, USER_PACKAGE_NAME } from 'interfaces/user.grpc'
-import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
+import { PORT_GRPC } from 'libs/constant/grpc/port-grpc.constant'
 @Module({
   imports: [
     forwardRef(() => AppModule),

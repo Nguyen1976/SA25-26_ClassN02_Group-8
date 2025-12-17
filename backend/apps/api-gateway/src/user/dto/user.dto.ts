@@ -1,3 +1,4 @@
+import { Status } from '@prisma/client'
 import {
   IsEmail,
   IsEnum,
@@ -5,7 +6,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator'
-import { FriendRequestStatus } from 'interfaces/user'
 
 export class RegisterUserDto {
   @IsEmail()
@@ -46,13 +46,12 @@ export class MakeFriendDto {
   email: string
 }
 
-
 export class UpdateStatusMakeFriendDto {
   @IsNotEmpty()
-  @IsEnum(FriendRequestStatus, {
-    message: `Status must be one of the following values: ${Object.values(FriendRequestStatus).join(', ')}`,
+  @IsEnum(Status, {
+    message: `Status must be one of the following values: ${Object.values(Status).join(', ')}`,
   })
-  status: FriendRequestStatus
+  status: Status
 
   @IsNotEmpty()
   inviterId: string

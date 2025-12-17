@@ -7,6 +7,7 @@ import { PrismaModule } from '@app/prisma'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { UtilModule } from '@app/util'
 import { RedisModule } from '@app/redis'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { RedisModule } from '@app/redis'
     RabbitMQModule.forRoot({
       exchanges: [
         {
-          name: 'notification.events',
+          name: EXCHANGE_RMQ.NOTIFICATION_EVENTS,
           type: 'topic',
         },
       ],

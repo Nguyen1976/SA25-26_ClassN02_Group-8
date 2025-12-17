@@ -4,6 +4,7 @@ import { ChatService } from './chat.service'
 import { PrismaModule } from '@app/prisma'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { UtilModule } from '@app/util'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { UtilModule } from '@app/util'
     RabbitMQModule.forRoot({
       exchanges: [
         {
-          name: 'chat.events',
+          name: EXCHANGE_RMQ.CHAT_EVENTS,
           type: 'topic',
         },
       ],

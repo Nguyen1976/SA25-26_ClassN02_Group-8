@@ -12,9 +12,12 @@ import { UserStatusStore } from './user-status.store'
 import { JwtService } from '@nestjs/jwt'
 import { Inject, Injectable } from '@nestjs/common'
 import { ChatService } from '../chat/chat.service'
-import { SOCKET_EVENTS } from 'libs/constant/socket.events'
-import type { SendMessagePayload } from 'libs/constant/socket.payload'
+import { SOCKET_EVENTS } from 'libs/constant/websocket/socket.events'
+import type { SendMessagePayload } from 'libs/constant/websocket/socket.payload'
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
+import { QUEUE_RMQ } from 'libs/constant/rmq/queue'
+import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
 
 //nếu k đặt tên cổng thì nó sẽ trùng với cổng của http
 @Injectable()
@@ -51,15 +54,7 @@ export class RealtimeGateway
         return
       }
       const payload = this.jwtService.verify(token! as string)
-      /**
-       * {
-        userId: '693befebbeed61ee46291bf3',
-        email: 'nguyen2202794@gmail.com',
-        username: 'nguyen11',
-        iat: 1765553456,
-        exp: 1765557056
-      }
-       */
+
       if (!payload.userId) {
         client.disconnect()
         return
@@ -84,9 +79,9 @@ export class RealtimeGateway
   }
 
   @RabbitSubscribe({
-    exchange: 'notification.events',
-    routingKey: 'notification.created',
-    queue: 'realtime_queue_notifications_created',
+    exchange: EXCHANGE_RMQ.NOTIFICATION_EVENTS,
+    routingKey: ROUTING_RMQ.NOTIFICATION_CREATED,
+    queue: QUEUE_RMQ.REALTIME_NOTIFICATIONS_CREATED,
   })
   async emitNotificationToUser(data): Promise<void> {
     await this.emitToUser(
@@ -97,9 +92,9 @@ export class RealtimeGateway
   }
 
   @RabbitSubscribe({
-    exchange: 'chat.events',
-    routingKey: 'conversation.created',
-    queue: 'realtime_queue_conversations_created',
+    exchange: EXCHANGE_RMQ.CHAT_EVENTS,
+    routingKey: ROUTING_RMQ.CONVERSATION_CREATED,
+    queue: QUEUE_RMQ.REALTIME_CONVERSATIONS_CREATED,
   })
   async emitNewConversationToUser(data): Promise<void> {
     await this.emitToUser(
@@ -135,74 +130,21 @@ export class RealtimeGateway
     @MessageBody() data: SendMessagePayload,
     @ConnectedSocket() client: Socket,
   ) {
-    //gọi chat service để lưu tin nhắn
-    //định dạng dữ liệu cần
-
-    // {
-    //   "conversationId": "69424b92a8d796d2a8ce7a73",
-    //   "message": "Xin chào, rất vui được làm quen"
-    // }
-    /**
-     * conversationId: string
-     * senderId: string (client.data.userId) k cần truyền từ FE
-     * replyToMessageId?: string nếu k có thì đơn giản là hiển thị tin nhắn bthg
-     * thằng chat service sẽ thực hiện hành động emit
-     */
-
-    //call chat service ....
     this.chatService.sendMessage({
       conversationId: data.conversationId,
       senderId: client.data.userId,
       message: data.message,
       replyToMessageId: data.replyToMessageId || '',
     })
-    /**
-       * Message saved: {
-          conversationId: '693e6e395030dd62ac2181dc',
-          senderId: '693befebbeed61ee46291bf3',
-          replyToMessageId: '',
-          message: 'Xin chào, rất vui được làm quen',
-          createdAt: {
-            seconds: Long { low: 1765703286, high: 0, unsigned: false },
-            nanos: 37000000
-          }
-        }
-          data.memberIds
-       */
-
-    // this.emitToUser(
-    //   data.memberIds.filter(
-    //     async (id: string) =>
-    //       (await this.checkUserOnline(id)) && id !== res.senderId,
-    //   ),
-    //   SOCKET_EVENTS.CHAT.NEW_MESSAGE,
-    //   res,
-    // )
     //trong tương lai trong redis có thể quản lý thêm các conversation map với user đang online để giảm số lần query xuoogns db
   }
 
   @RabbitSubscribe({
-    exchange: 'chat.events',
-    routingKey: 'message.sent',
-    queue: 'realtime_queue_messages_sent',
+    exchange: EXCHANGE_RMQ.CHAT_EVENTS,
+    routingKey: ROUTING_RMQ.MESSAGE_SENT,
+    queue: QUEUE_RMQ.REALTIME_MESSAGES_SENT,
   })
   async handleNewMessageSent(data: any): Promise<void> {
-    /**
-     * Message saved: {
-        id: '6942570611b3d02db6f8eda1',
-        conversationId: '69424b92a8d796d2a8ce7a73',
-        senderId: '693befebbeed61ee46291bf3',
-        text: 'Xin chào, rất vui được làm quen',
-        replyToMessageId: null,
-        isDeleted: false,
-        deleteType: null,
-        createdAt: '2025-12-17T07:08:54.371Z',
-        memberIds: [ '693befebbeed61ee46291bf3', '693cdc3e23c5f1c06a8f5d5b' ]
-      }
-     * 
-     * 
-     */
-    console.log(data)
     await this.emitToUser(
       data.memberIds.filter((id) => id !== data.senderId),
       SOCKET_EVENTS.CHAT.NEW_MESSAGE,

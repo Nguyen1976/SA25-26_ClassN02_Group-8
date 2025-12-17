@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { ChatModule } from './chat.module'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 import { CHAT_PACKAGE_NAME } from 'interfaces/chat.grpc'
-import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
+import { PORT_GRPC } from 'libs/constant/grpc/port-grpc.constant'
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(

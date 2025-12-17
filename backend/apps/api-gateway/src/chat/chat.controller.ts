@@ -12,7 +12,6 @@ export class ChatController {
     @Body() createConversationDto: CreateConversationDTO,
     @UserInfo() userInfo: any,
   ) {
-    console.log('Create conversation DTO: ', createConversationDto)
     return await this.chatService.createConversation({
       ...createConversationDto,
       type: 'GROUP',

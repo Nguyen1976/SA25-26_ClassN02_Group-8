@@ -3,10 +3,12 @@ import { PrismaService } from '@app/prisma'
 import { UtilService } from '@app/util'
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Inject, Injectable } from '@nestjs/common'
-import { NotificationType } from 'interfaces/notification'
-import { FriendRequestStatus } from 'interfaces/user'
+import { NotificationType, Status } from '@prisma/client'
 import { Redis as RedisClient } from 'ioredis'
-import { SOCKET_EVENTS } from 'libs/constant/socket.events'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
+import { QUEUE_RMQ } from 'libs/constant/rmq/queue'
+import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
+import { SOCKET_EVENTS } from 'libs/constant/websocket/socket.events'
 
 @Injectable()
 export class NotificationService {
@@ -28,9 +30,9 @@ export class NotificationService {
   }
 
   @RabbitSubscribe({
-    exchange: 'user.events',
-    routingKey: 'user.created',
-    queue: 'notification_queue_user_created',
+    exchange: EXCHANGE_RMQ.USER_EVENTS,
+    routingKey: ROUTING_RMQ.USER_CREATED,
+    queue: QUEUE_RMQ.NOTIFICATION_USER_CREATED,
   })
   async handleUserRegistered(data: any) {
     await this.mailerService.sendUserConfirmation(data)
@@ -38,9 +40,9 @@ export class NotificationService {
   }
 
   @RabbitSubscribe({
-    exchange: 'user.events',
-    routingKey: 'user.makeFriend',
-    queue: 'notification_queue_user_makeFriend',
+    exchange: EXCHANGE_RMQ.USER_EVENTS,
+    routingKey: ROUTING_RMQ.USER_MAKE_FRIEND,
+    queue: QUEUE_RMQ.NOTIFICATION_USER_MAKE_FRIEND,
   })
   async handleMakeFriend(data: any) {
     /**
@@ -70,8 +72,8 @@ export class NotificationService {
     } else {
       //bắn socket
       this.amqpConnection.publish(
-        'notification.events',
-        'notification.created',
+        EXCHANGE_RMQ.NOTIFICATION_EVENTS,
+        ROUTING_RMQ.NOTIFICATION_CREATED,
         notificationCreated,
       )
     }
@@ -80,9 +82,9 @@ export class NotificationService {
   }
 
   @RabbitSubscribe({
-    exchange: 'user.events',
-    routingKey: 'user.updateStatusMakeFriend',
-    queue: 'notification_queue_user_updateStatusMakeFriend',
+    exchange: EXCHANGE_RMQ.USER_EVENTS,
+    routingKey: ROUTING_RMQ.USER_UPDATE_STATUS_MAKE_FRIEND,
+    queue: QUEUE_RMQ.NOTIFICATION_USER_UPDATE_STATUS_MAKE_FRIEND,
   })
   async handleUpdateStatusMakeFriend(data: any) {
     /**
@@ -96,7 +98,7 @@ export class NotificationService {
     let createdNotification = await this.createNotification({
       userId: data.inviterId,
       message: `Lời mời kết bạn của ${data.inviteeName} đã được ${
-        data.status === FriendRequestStatus.ACCEPT ? 'chấp nhận' : 'từ chối'
+        data.status === Status.ACCEPTED ? 'chấp nhận' : 'từ chối'
       }.`,
       type: NotificationType.NORMAL_NOTIFICATION,
     })
@@ -104,8 +106,8 @@ export class NotificationService {
 
     if (inviterStatus) {
       this.amqpConnection.publish(
-        'notification.events',
-        'notification.created',
+        EXCHANGE_RMQ.NOTIFICATION_EVENTS,
+        ROUTING_RMQ.NOTIFICATION_CREATED,
         createdNotification,
       )
     } else {

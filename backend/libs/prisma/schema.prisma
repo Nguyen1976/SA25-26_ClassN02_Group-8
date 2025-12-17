@@ -33,6 +33,10 @@ model friendRequest {
   updatedAt DateTime @updatedAt
 }
 
+enum NotificationType {
+  FRIEND_REQUEST
+  NORMAL_NOTIFICATION
+}
 //thông báo cho việc là user đã đồng ý kết bạn hay chưa
 model notification {
   id String @id @default(auto()) @map("_id") @db.ObjectId

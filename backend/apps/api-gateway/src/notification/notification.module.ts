@@ -6,7 +6,7 @@ import {
   NOTIFICATION_GRPC_SERVICE_NAME,
   NOTIFICATION_PACKAGE_NAME,
 } from 'interfaces/notification.grpc'
-import { PORT_GRPC } from 'libs/constant/port-grpc.constant'
+import { PORT_GRPC } from 'libs/constant/grpc/port-grpc.constant'
 import { AppModule } from '../app.module'
 
 @Module({

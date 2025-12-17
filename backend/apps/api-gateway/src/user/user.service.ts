@@ -14,11 +14,9 @@ import {
 import type { ClientGrpc } from '@nestjs/microservices'
 import { firstValueFrom } from 'rxjs'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
-import { FriendRequestStatus } from 'interfaces/user'
 import { NotificationService } from '../notification/notification.service'
 import { ChatService } from '../chat/chat.service'
-import { NotificationType } from 'interfaces/notification'
-import { SOCKET_EVENTS } from 'libs/constant/socket.events'
+import { Status } from '@prisma/client'
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -67,12 +65,12 @@ export class UserService implements OnModuleInit {
 
   async updateStatusMakeFriend(dto: any): Promise<UpdateStatusResponse> {
     const observable = this.userClientService.updateStatusMakeFriend({
-      status: dto.status as FriendRequestStatus,
+      status: dto.status as Status,
       inviteeId: dto.inviteeId,
       inviterId: dto.inviterId,
       inviteeName: dto.inviteeName,
     })
-    //bắn sự kiện sang notifications service để tạo thông báo hoặc gửi mail   
+    //bắn sự kiện sang notifications service để tạo thông báo hoặc gửi mail
     return await firstValueFrom(observable)
   }
 }

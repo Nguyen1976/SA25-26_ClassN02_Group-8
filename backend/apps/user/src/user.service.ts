@@ -5,7 +5,7 @@ import { status } from '@grpc/grpc-js'
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { RpcException } from '@nestjs/microservices'
-import { FriendRequestStatus } from 'interfaces/user'
+import { Status } from '@prisma/client'
 import {
   MakeFriendRequest,
   MakeFriendResponse,
@@ -17,6 +17,8 @@ import {
   UserRegisterResponse,
 } from 'interfaces/user.grpc'
 import { Redis as RedisClient } from 'ioredis'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
+import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
 
 @Injectable()
 export class UserService {
@@ -65,11 +67,15 @@ export class UserService {
       })
 
     //test emit event to rabbitmq
-    this.amqpConnection.publish('user.events', 'user.created', {
-      id: res.id,
-      email: res.email,
-      username: res.username,
-    })
+    this.amqpConnection.publish(
+      EXCHANGE_RMQ.USER_EVENTS,
+      ROUTING_RMQ.USER_CREATED,
+      {
+        id: res.id,
+        email: res.email,
+        username: res.username,
+      },
+    )
     return res
   }
 
@@ -116,12 +122,12 @@ export class UserService {
       data: {
         fromUserId: data.inviterId,
         toUserId: friend.id,
-        status: FriendRequestStatus.PENDING,
+        status: Status.PENDING,
       },
     })
 
     //vấn đề về việc notifi thì để bên notification service xử lý
-    this.amqpConnection.publish('user.events', 'user.makeFriend', {
+    this.amqpConnection.publish(EXCHANGE_RMQ.USER_EVENTS, ROUTING_RMQ.USER_MAKE_FRIEND, {
       inviterId: data.inviterId,
       inviterName: data.inviterName,
 
@@ -165,12 +171,12 @@ export class UserService {
         toUserId: data.inviteeId,
       },
       data: {
-        status: data.status as FriendRequestStatus,
+        status: data.status as Status,
       },
     })
 
     //nếu chấp nhận thì update friend ở cả 2 user
-    if (data.status === FriendRequestStatus.ACCEPT) {
+    if (data.status === Status.ACCEPTED) {
       //update mảng friends trong user của cả 2
       await this.prisma.user.update({
         where: {
@@ -194,12 +200,16 @@ export class UserService {
       })
     }
 
-    this.amqpConnection.publish('user.events', 'user.updateStatusMakeFriend', {
-      inviterId: data.inviterId, //ngươi nhận thông báo
-      inviteeId: data.inviteeId,
-      inviteeName: data.inviteeName,
-      status: data.status,
-    })
+    this.amqpConnection.publish(
+      EXCHANGE_RMQ.USER_EVENTS,
+      ROUTING_RMQ.USER_UPDATE_STATUS_MAKE_FRIEND,
+      {
+        inviterId: data.inviterId, //ngươi nhận thông báo
+        inviteeId: data.inviteeId,
+        inviteeName: data.inviteeName,
+        status: data.status,
+      },
+    )
 
     //thằng conversation cũng sẽ nhận và create conservation
 

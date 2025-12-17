@@ -6,6 +6,7 @@ import { PrismaModule } from '@app/prisma'
 import { CommonModule } from '@app/common'
 import { UtilModule } from '@app/util'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
     RabbitMQModule.forRoot({
       exchanges: [
         {
-          name: 'user.events',
+          name: EXCHANGE_RMQ.USER_EVENTS,
           type: 'topic',
         },
       ],
