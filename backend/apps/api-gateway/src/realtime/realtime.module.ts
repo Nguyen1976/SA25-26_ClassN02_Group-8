@@ -6,16 +6,7 @@ import { ChatModule } from '../chat/chat.module'
 @Module({
   imports: [
     RabbitMQModule.forRoot({
-      exchanges: [
-        {
-          name: 'user.events',
-          type: 'topic',
-        },
-        {
-          name: 'notification.events',
-          type: 'topic',
-        },
-      ],
+      exchanges: [],
       uri: 'amqp://localhost:5672',
       connectionInitOptions: { wait: true },
     }),

@@ -4,7 +4,9 @@ import { UtilService } from '@app/util'
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Inject, Injectable } from '@nestjs/common'
 import { NotificationType } from 'interfaces/notification'
+import { FriendRequestStatus } from 'interfaces/user'
 import { Redis as RedisClient } from 'ioredis'
+import { SOCKET_EVENTS } from 'libs/constant/socket.events'
 
 @Injectable()
 export class NotificationService {
@@ -19,6 +21,11 @@ export class NotificationService {
   @Inject('USER_REDIS')
   private readonly redis: RedisClient
   constructor(private readonly amqpConnection: AmqpConnection) {}
+
+  checkUserOnline = async (userId: string): Promise<boolean> => {
+    const socketCount = await this.redis.scard(`user:${userId}:sockets`)
+    return socketCount > 0
+  }
 
   @RabbitSubscribe({
     exchange: 'user.events',
@@ -45,11 +52,10 @@ export class NotificationService {
       inviterId: data.inviterId,
      */
     //vấn đề gặp phải đó là phải có inviteeId
-    const socketCount = await this.redis.scard(`user:${data.inviteeId}:sockets`)
-    let inviteeStatus = socketCount > 0
+    let inviteeStatus = await this.checkUserOnline(data.inviteeId)
 
     const notificationCreated = await this.createNotification({
-      inviteeId: data.inviteeId,
+      userId: data.inviteeId,
       message: `${data.inviterName} đã gửi lời mời kết bạn cho bạn.`,
       type: NotificationType.FRIEND_REQUEST,
     })
@@ -73,10 +79,46 @@ export class NotificationService {
     return
   }
 
+  @RabbitSubscribe({
+    exchange: 'user.events',
+    routingKey: 'user.updateStatusMakeFriend',
+    queue: 'notification_queue',
+  })
+  async handleUpdateStatusMakeFriend(data: any) {
+    /**
+     * inviterId: data.inviterId,//ngươi nhận thông báo
+      inviteeName: data.inviteeName,
+      status: data.status,
+     * 
+     * 
+     */
+    //xử lý tạo bản ghi notification r emit về
+    let createdNotification = await this.createNotification({
+      userId: data.inviterId,
+      message: `Lời mời kết bạn của ${data.inviteeName} đã được ${
+        data.status === FriendRequestStatus.ACCEPT ? 'chấp nhận' : 'từ chối'
+      }.`,
+      type: NotificationType.NORMAL_NOTIFICATION,
+    })
+    const inviterStatus = await this.checkUserOnline(data.inviterId)
+
+    if (inviterStatus) {
+      this.amqpConnection.publish(
+        'notification.events',
+        'notification.created',
+        createdNotification,
+      )
+    } else {
+      //offline thì gửi mail (later)
+    }
+
+    return
+  }
+
   async createNotification(data: any) {
     const res = await this.prisma.notification.create({
       data: {
-        userId: data.inviteeId,
+        userId: data.userId,
         message: data.message,
         type: data.type as NotificationType,
       },

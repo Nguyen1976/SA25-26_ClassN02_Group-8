@@ -89,10 +89,22 @@ export class RealtimeGateway
     queue: 'realtime_queue',
   })
   async emitNotificationToUser(data) {
-    console.log('Received notification to emit via socket:', data)
     await this.emitToUser(
       [data.userId],
       SOCKET_EVENTS.NOTIFICATION.NEW_NOTIFICATION,
+      data,
+    )
+  }
+
+  @RabbitSubscribe({
+    exchange: 'chat.events',
+    routingKey: 'conversation.created',
+    queue: 'realtime_queue',
+  })
+  async emitNewConversationToUser(data) {
+    await this.emitToUser(
+      data.memberIds,
+      SOCKET_EVENTS.CHAT.NEW_CONVERSATION,
       data,
     )
   }

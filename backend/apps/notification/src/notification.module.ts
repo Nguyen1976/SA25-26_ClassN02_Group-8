@@ -31,10 +31,6 @@ import { RedisModule } from '@app/redis'
           name: 'notification.events',
           type: 'topic',
         },
-        {
-          name: 'user.events',
-          type: 'topic',
-        },
       ],
       uri: 'amqp://localhost:5672',
       connectionInitOptions: { wait: true },

@@ -66,43 +66,13 @@ export class UserService implements OnModuleInit {
   }
 
   async updateStatusMakeFriend(dto: any): Promise<UpdateStatusResponse> {
-    const inviterStatus = await this.realtimeGateway.checkUserOnline(
-      dto.inviterId,
-    )
     const observable = this.userClientService.updateStatusMakeFriend({
       status: dto.status as FriendRequestStatus,
       inviteeId: dto.inviteeId,
       inviterId: dto.inviterId,
+      inviteeName: dto.inviteeName,
     })
-
-    //xử lý tạo bản ghi notification r emit về
-    let createdNotification = await this.notificationService.createNotification(
-      {
-        inviterId: dto.inviterId,
-        inviteeName: dto.inviteeName,
-        message: `Friend request to ${dto.inviteeName} has been ${dto.status.toLowerCase()}.`,
-        type: NotificationType.NORMAL_NOTIFICATION,
-      },
-    )
-
-    if (dto.status === FriendRequestStatus.ACCEPT) {
-      //xử lý tạo conversation rồi emit về
-      await this.chatService.createConversation({
-        type: 'DIRECT',
-        memberIds: [dto.inviterId, dto.inviteeId],
-        createrId: dto.inviteeId,
-      })
-    }
-    
-    if (inviterStatus) {
-      this.realtimeGateway.emitToUser(
-        [dto.inviterId],
-        SOCKET_EVENTS.USER.UPDATE_FRIEND_REQUEST_STATUS,
-        //trả về bản ghi thông báo luôn
-        createdNotification,
-      )
-    }
-
+    //bắn sự kiện sang notifications service để tạo thông báo hoặc gửi mail   
     return await firstValueFrom(observable)
   }
 }

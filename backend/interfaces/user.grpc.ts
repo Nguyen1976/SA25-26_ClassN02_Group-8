@@ -49,6 +49,7 @@ export interface UpdateStatusRequest {
   inviteeId: string;
   status: string;
   inviterId: string;
+  inviteeName: string;
 }
 
 export interface UpdateStatusResponse {

@@ -1,5 +1,6 @@
 import { PrismaService } from '@app/prisma/prisma.service'
 import { UtilService } from '@app/util'
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConversationType } from 'interfaces/chat'
 import {
@@ -8,6 +9,7 @@ import {
   SendMessageResponse,
   type CreateConversationResponse,
 } from 'interfaces/chat.grpc'
+import { FriendRequestStatus } from 'interfaces/user'
 
 @Injectable()
 export class ChatService {
@@ -15,7 +17,34 @@ export class ChatService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(UtilService)
     private readonly utilService: UtilService,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
+
+  @RabbitSubscribe({
+    exchange: 'user.events',
+    routingKey: 'user.updateStatusMakeFriend',
+    queue: 'chat_queue',
+  })
+  async createConversationWhenAcceptFriend(data: any) {
+    // inviterId: data.inviterId,//ngươi nhận thông báo
+    // inviteeName: data.inviteeName,
+    // status: data.status,
+
+    if (!(data.status === FriendRequestStatus.ACCEPT)) return
+    const conversation = await this.createConversation({
+      type: ConversationType.DIRECT,
+      memberIds: [data.inviterId, data.inviteeId],
+      createrId: data.inviterId,
+    })
+    this.amqpConnection.publish(
+      'chat.events',
+      'conversation.created',
+      conversation,
+    )
+
+
+    return
+  }
 
   async createConversation(
     data: CreateConversationRequest,

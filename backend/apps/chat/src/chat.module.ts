@@ -11,14 +11,14 @@ import { UtilModule } from '@app/util'
     RabbitMQModule.forRoot({
       exchanges: [
         {
-          name: 'user.events',
+          name: 'chat.events',
           type: 'topic',
         },
       ],
       uri: 'amqp://localhost:5672',
       connectionInitOptions: { wait: true },
     }),
-    UtilModule
+    UtilModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],

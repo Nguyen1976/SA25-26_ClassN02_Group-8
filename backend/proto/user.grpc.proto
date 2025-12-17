@@ -47,6 +47,7 @@ message UpdateStatusRequest {
   string inviteeId = 1;
   string status = 2;
   string inviterId = 3;
+  string inviteeName = 4;
 }
 
 message UpdateStatusResponse {

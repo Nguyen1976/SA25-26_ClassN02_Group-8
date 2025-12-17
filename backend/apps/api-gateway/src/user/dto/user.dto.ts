@@ -56,4 +56,7 @@ export class UpdateStatusMakeFriendDto {
 
   @IsNotEmpty()
   inviterId: string
+
+  @IsNotEmpty()
+  inviteeName: string
 }

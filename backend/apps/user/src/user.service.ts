@@ -111,6 +111,7 @@ export class UserService {
       })
     }
 
+    //tạo bản ghi friend request
     await this.prisma.friendRequest.create({
       data: {
         fromUserId: data.inviterId,
@@ -137,6 +138,13 @@ export class UserService {
   async updateStatusMakeFriend(
     data: UpdateStatusRequest,
   ): Promise<UpdateStatusResponse> {
+    /**
+     * status: dto.status as FriendRequestStatus,
+      inviteeId: dto.inviteeId,
+      inviterId: dto.inviterId,
+      inviteeName: dto.inviteeName,
+     * 
+     */
     //tìm bản ghi dựa vào inviterId và inviteeId
     const friendRequest = await this.prisma.friendRequest.findFirst({
       where: {
@@ -161,7 +169,6 @@ export class UserService {
       },
     })
 
-    let inventee
     //nếu chấp nhận thì update friend ở cả 2 user
     if (data.status === FriendRequestStatus.ACCEPT) {
       //update mảng friends trong user của cả 2
@@ -175,7 +182,7 @@ export class UserService {
           },
         },
       })
-      inventee = await this.prisma.user.update({
+      await this.prisma.user.update({
         where: {
           id: data.inviteeId,
         },
@@ -186,6 +193,16 @@ export class UserService {
         },
       })
     }
+
+    this.amqpConnection.publish('user.events', 'user.updateStatusMakeFriend', {
+      inviterId: data.inviterId, //ngươi nhận thông báo
+      inviteeId: data.inviteeId,
+      inviteeName: data.inviteeName,
+      status: data.status,
+    })
+
+    //thằng conversation cũng sẽ nhận và create conservation
+
     return { status: 'SUCCESS' }
   }
 }
