@@ -29,4 +29,24 @@ export class ChatController {
   ) {
     return await this.chatService.addMemberToConversation(body)
   }
+  //luồng hoạt động của add member
+  //khi thêm 1 member vào conversation đảm bảo check đó phải có type là group
+  /**gateway call frpc chat service
+   * add member
+   * publish sự kiện có member mới và rabbitmq
+   * realtime gateway lawnsng nghe sự kiện và push conversation về cho member
+   * done
+   * 
+   * 
+   * 
+   * 
+   * 
+   * 
+   * 
+   * 
+   */
+
+
+
+
 }

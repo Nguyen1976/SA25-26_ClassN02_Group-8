@@ -6,4 +6,5 @@ export const ROUTING_RMQ = {
   CONVERSATION_CREATED: 'conversation.created',
   MESSAGE_SENT: 'message.sent',
   MESSAGE_SEND: 'message.send',
+  MEMBER_ADDED_TO_CONVERSATION: 'member.addedToConversation',
 }

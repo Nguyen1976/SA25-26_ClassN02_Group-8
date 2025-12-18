@@ -28,10 +28,24 @@ export interface CreateConversationResponse {
   adminId?: string | undefined;
 }
 
+export interface AddMemberToConversationRequest {
+  conversationId: string;
+  memberIds: string[];
+}
+
+export interface AddMemberToConversationResponse {
+  status: string;
+}
+
 export const CHAT_PACKAGE_NAME = "chat";
 
 export interface ChatGrpcServiceClient {
   createConversation(request: CreateConversationRequest, metadata?: Metadata): Observable<CreateConversationResponse>;
+
+  addMemberToConversation(
+    request: AddMemberToConversationRequest,
+    metadata?: Metadata,
+  ): Observable<AddMemberToConversationResponse>;
 }
 
 export interface ChatGrpcServiceController {
@@ -39,11 +53,19 @@ export interface ChatGrpcServiceController {
     request: CreateConversationRequest,
     metadata?: Metadata,
   ): Promise<CreateConversationResponse> | Observable<CreateConversationResponse> | CreateConversationResponse;
+
+  addMemberToConversation(
+    request: AddMemberToConversationRequest,
+    metadata?: Metadata,
+  ):
+    | Promise<AddMemberToConversationResponse>
+    | Observable<AddMemberToConversationResponse>
+    | AddMemberToConversationResponse;
 }
 
 export function ChatGrpcServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createConversation"];
+    const grpcMethods: string[] = ["createConversation", "addMemberToConversation"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ChatGrpcService", method)(constructor.prototype[method], method, descriptor);

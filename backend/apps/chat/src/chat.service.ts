@@ -1,14 +1,19 @@
 import { PrismaService } from '@app/prisma/prisma.service'
 import { UtilService } from '@app/util'
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
+import { status } from '@grpc/grpc-js'
 import { Inject, Injectable } from '@nestjs/common'
+import { RpcException } from '@nestjs/microservices'
 import { conversationType, Status } from '@prisma/client'
 import {
+  AddMemberToConversationRequest,
+  type AddMemberToConversationResponse,
   CreateConversationRequest,
   type CreateConversationResponse,
 } from 'interfaces/chat.grpc'
 import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 import type {
+  MemberAddedToConversationPayload,
   SendMessagePayload,
   UserUpdateStatusMakeFriendPayload,
 } from 'libs/constant/rmq/payload'
@@ -103,7 +108,10 @@ export class ChatService {
     const memberIds = conversationMembers.map((cm) => cm.userId)
 
     if (!memberIds.includes(data.senderId)) {
-      throw new Error('Sender is not a member of the conversation')
+      throw new RpcException({
+        code: status.FAILED_PRECONDITION,
+        message: 'Sender is not a member of the conversation',
+      })
     }
     let message = await this.prisma.message.create({
       data: {
@@ -131,5 +139,68 @@ export class ChatService {
     //   message: message.text,
     //   createdAt: this.utilService.dateToTimestamp(message.createdAt),
     // } as SendMessageResponse
+  }
+
+  async addMemberToConversation(
+    dto: AddMemberToConversationRequest,
+  ): Promise<AddMemberToConversationResponse> {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: dto.conversationId },
+    })
+
+    if (!conversation) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Conversation not found',
+      })
+    }
+
+    const existingMembers = await this.prisma.conversationMember.findMany({
+      where: {
+        conversationId: dto.conversationId,
+        userId: { in: dto.memberIds },
+      },
+      select: { userId: true },
+    })
+
+    const existingMemberIds = existingMembers.map((m) => m.userId)
+
+    const newMemberIds = dto.memberIds.filter(
+      (id) => !existingMemberIds.includes(id),
+    )
+    //check memberIds đã có trong conversation chưa
+
+    if (newMemberIds.length === 0) {
+      return {
+        status: 'Member already in conversation',
+      }
+    }
+    await this.prisma.conversationMember.createMany({
+      data: newMemberIds.map((memberId) => ({
+        conversationId: dto.conversationId,
+        userId: memberId,
+        role: 'member',
+      })),
+    })
+
+    //publish event user mới vào conversation
+    //trả về conversation id fe tự fetch
+
+    const payload: MemberAddedToConversationPayload = {
+      conversationId: dto.conversationId,
+      newMemberIds,
+    }
+
+    this.amqpConnection.publish(
+      EXCHANGE_RMQ.CHAT_EVENTS,
+      ROUTING_RMQ.MEMBER_ADDED_TO_CONVERSATION,
+      payload,
+    )
+
+    return {
+      status: 'SUCCESS',
+    }
+
+    //nhận vào conversationId, memberIds[]
   }
 }

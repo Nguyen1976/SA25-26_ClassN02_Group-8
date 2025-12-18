@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 service ChatGrpcService {
   rpc createConversation (CreateConversationRequest) returns (CreateConversationResponse) {}
-  
+  rpc addMemberToConversation (AddMemberToConversationRequest) returns (AddMemberToConversationResponse) {}
 }
 
 message CreateConversationRequest {
@@ -24,4 +24,13 @@ message CreateConversationResponse {
     optional string groupName = 4;
     optional string groupAvatar = 5;
     optional string adminId = 6;
+}
+
+message AddMemberToConversationRequest {
+  string conversationId = 1;
+  repeated string memberIds = 2;
+}
+
+message AddMemberToConversationResponse {
+  string status = 1;
 }

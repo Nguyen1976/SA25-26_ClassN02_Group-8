@@ -11,9 +11,13 @@ export class CreateConversationDTO {
 }
 
 export class AddMemberToConversationDTO {
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'conversationId is required',
+  })
   conversationId: string
 
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'memberIds is required',
+  })
   memberIds: string[]
 }

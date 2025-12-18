@@ -67,7 +67,7 @@ model conversation {
 model conversationMember {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   conversationId String @db.ObjectId
-
+  
   userId String? @db.ObjectId
   role String? //nếu là nhóm thì có vai trò như admin hay member
 

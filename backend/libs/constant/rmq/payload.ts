@@ -26,3 +26,8 @@ export interface SendMessagePayload {
   message: string
   replyToMessageId?: string
 }
+
+export interface MemberAddedToConversationPayload {
+  conversationId: string
+  newMemberIds: string[]
+}

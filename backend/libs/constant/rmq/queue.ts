@@ -6,5 +6,8 @@ export const QUEUE_RMQ = {
   CHAT_MESSAGES_SEND: 'chat_queue_messages_send',
   NOTIFICATION_USER_CREATED: 'notification_queue_user_created',
   NOTIFICATION_USER_MAKE_FRIEND: 'notification_queue_user_makeFriend',
-  NOTIFICATION_USER_UPDATE_STATUS_MAKE_FRIEND: 'notification_queue_user_updateStatusMakeFriend',
+  NOTIFICATION_USER_UPDATE_STATUS_MAKE_FRIEND:
+    'notification_queue_user_updateStatusMakeFriend',
+  REALTIME_MEMBERS_ADDED_TO_CONVERSATION:
+    'realtime_queue_members_added_to_conversation',
 }

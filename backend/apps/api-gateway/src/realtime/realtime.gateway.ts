@@ -18,6 +18,7 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 import { QUEUE_RMQ } from 'libs/constant/rmq/queue'
 import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
+import type { MemberAddedToConversationPayload } from 'libs/constant/rmq/payload'
 
 //nếu k đặt tên cổng thì nó sẽ trùng với cổng của http
 @Injectable()
@@ -155,6 +156,22 @@ export class RealtimeGateway
       data.memberIds.filter((id) => id !== data.senderId),
       SOCKET_EVENTS.CHAT.NEW_MESSAGE,
       data,
+    )
+  }
+
+  @RabbitSubscribe({
+    exchange: EXCHANGE_RMQ.CHAT_EVENTS,
+    routingKey: ROUTING_RMQ.MEMBER_ADDED_TO_CONVERSATION,
+    queue: QUEUE_RMQ.REALTIME_MEMBERS_ADDED_TO_CONVERSATION,
+  })
+  async handleNewMemberAddedToConversation(
+    data: MemberAddedToConversationPayload,
+  ): Promise<void> {
+    console.log(data)
+    await this.emitToUser(
+      data.newMemberIds,
+      SOCKET_EVENTS.CHAT.NEW_MEMBER_ADDED,
+      data.conversationId,
     )
   }
 }
