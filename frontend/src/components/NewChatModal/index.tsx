@@ -31,14 +31,14 @@ export function NewChatModal({
 
   return (
     <div className='fixed inset-0 bg-black/70 flex items-center justify-center z-50'>
-      <div className='bg-[#2d2d3d] rounded-2xl w-full max-w-md mx-4 overflow-hidden'>
-        <div className='flex items-center justify-between p-6 border-b border-[#3d3d4d]'>
-          <h2 className='text-xl font-semibold text-white'>New Chat</h2>
+      <div className='bg-bg-voice-call rounded-2xl w-full max-w-md mx-4 overflow-hidden'>
+        <div className='flex items-center justify-between p-6 border-b border-button'>
+          <h2 className='text-xl font-semibold text-text'>New Chat</h2>
           <Button
             variant='ghost'
             size='icon'
             onClick={onClose}
-            className='hover:bg-[#3d3d4d] text-gray-400 hover:text-white'
+            className='hover:bg-button text-gray-400 hover:text-text'
           >
             <X className='w-5 h-5' />
           </Button>
@@ -52,7 +52,7 @@ export function NewChatModal({
               placeholder='Search users...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className='w-full bg-[#3d3d4d] text-white placeholder:text-gray-500 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-purple-600'
+              className='w-full bg-button text-text placeholder:text-gray-500 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-bg-box-message-out'
             />
           </div>
 
@@ -61,7 +61,7 @@ export function NewChatModal({
               <button
                 key={user.id}
                 onClick={() => onSelectUser(user.id)}
-                className='w-full flex items-center gap-3 p-3 hover:bg-[#3d3d4d] rounded-lg transition-colors'
+                className='w-full flex items-center gap-3 p-3 hover:bg-button rounded-lg transition-colors'
               >
                 <div className='relative'>
                   <Avatar className='w-10 h-10'>
@@ -72,10 +72,10 @@ export function NewChatModal({
                     <AvatarFallback>{user.name[0]}</AvatarFallback>
                   </Avatar>
                   {user.isOnline && (
-                    <div className='absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-[#2d2d3d]' />
+                    <div className='absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-bg-voice-call' />
                   )}
                 </div>
-                <span className='text-white font-medium'>{user.name}</span>
+                <span className='text-text font-medium'>{user.name}</span>
               </button>
             ))}
           </div>

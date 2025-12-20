@@ -18,14 +18,14 @@ interface ProfilePanelProps {
 
 export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
   return (
-    <div className='w-[340px] bg-[#18181b] border-l border-[#27272a] flex flex-col custom-scrollbar'>
-      <div className='flex items-center justify-between p-4 border-b border-[#27272a]'>
-        <h2 className='text-lg font-semibold text-white'>Profile</h2>
+    <div className='w-[340px] bg-black-bland border-l border-bg-box-message-incoming flex flex-col custom-scrollbar'>
+      <div className='flex items-center justify-between p-4 border-b border-bg-box-message-incoming'>
+        <h2 className='text-lg font-semibold text-text'>Profile</h2>
         <Button
           variant='ghost'
           size='icon'
           onClick={onClose}
-          className='hover:bg-[#27272a] text-gray-400 hover:text-white'
+          className='hover:bg-bg-box-message-incoming text-gray-400 hover:text-text'
         >
           <X className='w-5 h-5' />
         </Button>
@@ -44,7 +44,7 @@ export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
                 {user.name[0]}
               </AvatarFallback>
             </Avatar>
-            <h3 className='text-xl font-semibold text-white'>{user.name}</h3>
+            <h3 className='text-xl font-semibold text-text'>{user.name}</h3>
             <p className='text-sm text-gray-400'>{user.status}</p>
           </div>
 
@@ -52,7 +52,7 @@ export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
           {user.bio && (
             <div>
               <h4 className='text-sm font-medium text-gray-400 mb-2'>Bio</h4>
-              <p className='text-sm text-white'>{user.bio}</p>
+              <p className='text-sm text-text'>{user.bio}</p>
             </div>
           )}
 
@@ -60,22 +60,22 @@ export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
           {user.phone && (
             <div>
               <h4 className='text-sm font-medium text-gray-400 mb-2'>Mobile</h4>
-              <p className='text-sm text-white'>{user.phone}</p>
+              <p className='text-sm text-text'>{user.phone}</p>
             </div>
           )}
 
           {/* Settings */}
           <div className='space-y-4'>
             <div className='flex items-center justify-between'>
-              <span className='text-sm text-white'>Mute Chat</span>
-              <button className='relative inline-flex h-6 w-11 items-center rounded-full bg-[#27272a] transition-colors'>
+              <span className='text-sm text-text'>Mute Chat</span>
+              <button className='relative inline-flex h-6 w-11 items-center rounded-full bg-bg-box-message-incoming transition-colors'>
                 <span className='inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1' />
               </button>
             </div>
 
             <div className='flex items-center justify-between'>
-              <span className='text-sm text-white'>Disappearing Messages</span>
-              <button className='relative inline-flex h-6 w-11 items-center rounded-full bg-[#27272a] transition-colors'>
+              <span className='text-sm text-text'>Disappearing Messages</span>
+              <button className='relative inline-flex h-6 w-11 items-center rounded-full bg-bg-box-message-incoming transition-colors'>
                 <span className='inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1' />
               </button>
             </div>
@@ -90,7 +90,7 @@ export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className='aspect-square bg-[#27272a] rounded-lg'
+                  className='aspect-square bg-bg-box-message-incoming rounded-lg'
                 />
               ))}
             </div>

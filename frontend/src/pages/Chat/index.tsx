@@ -19,7 +19,7 @@ export default function ChatPage() {
 
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
-      <div className='flex h-screen bg-[#0f0f13] text-white overflow-hidden'>
+      <div className='flex h-screen bg-bg-box-chat text-text overflow-hidden'>
         <ChatSidebar
           users={mockUsers}
           selectedUserId={selectedUserId}
