@@ -43,8 +43,8 @@ export const userSlice = createSlice({
   },
 })
 
-export const selectUser = (state: UserState) => {
-  return state
+export const selectUser = (state: { user: UserState }) => {
+  return state.user
 }
 
 // export const {} = userSlice.actions

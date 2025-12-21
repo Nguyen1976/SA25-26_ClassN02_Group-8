@@ -15,6 +15,7 @@ import {
 import { loginAPI } from '@/redux/slices/userSlice'
 import { useDispatch } from 'react-redux'
 import type { AppDispatch } from '@/redux/store'
+import { useNavigate } from 'react-router'
 
 const Login = () => {
   const form = useForm<z.infer<typeof formLoginScheme>>({
@@ -26,10 +27,15 @@ const Login = () => {
   })
 
   const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
 
   const onSubmit = async (data: z.infer<typeof formLoginScheme>) => {
     console.log(data)
-    dispatch(loginAPI(data))
+    dispatch(loginAPI(data)).then((res) => {
+      if (loginAPI.fulfilled.match(res)) {
+        navigate('/')
+      }
+    })
   }
 
   return (
