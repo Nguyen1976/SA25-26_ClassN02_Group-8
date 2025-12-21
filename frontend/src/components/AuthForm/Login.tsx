@@ -1,4 +1,3 @@
-import { Label } from '@radix-ui/react-label'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { useForm } from 'react-hook-form'
@@ -13,7 +12,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { loginAPI } from '@/apis'
+import { loginAPI } from '@/redux/slices/userSlice'
+import { useDispatch } from 'react-redux'
+import type { AppDispatch } from '@/redux/store'
 
 const Login = () => {
   const form = useForm<z.infer<typeof formLoginScheme>>({
@@ -24,9 +25,11 @@ const Login = () => {
     },
   })
 
+  const dispatch = useDispatch<AppDispatch>()
+
   const onSubmit = async (data: z.infer<typeof formLoginScheme>) => {
-    const res = await loginAPI(data)
-    localStorage.setItem('token', res.data.token)
+    console.log(data)
+    dispatch(loginAPI(data))
   }
 
   return (
