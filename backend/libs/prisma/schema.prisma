@@ -60,6 +60,10 @@ model conversation {
   groupName String?
   groupAvatar String?
 
+  members     conversationMember[]
+  messages    message[]
+
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -69,9 +73,22 @@ model conversationMember {
   conversationId String @db.ObjectId
   
   userId String? @db.ObjectId
+
+  username String?
+  avatar String? 
+
   role String? //nếu là nhóm thì có vai trò như admin hay member
 
+  lastReadMessageId   String? @db.ObjectId
+  lastReadAt          DateTime?
+
   joinedAt DateTime @default(now())
+
+  conversation conversation @relation(fields: [conversationId], references: [id])
+
+  messages message[]
+
+  @@unique([conversationId, userId])
 }
 
 enum deleteType {
@@ -87,4 +104,8 @@ model message {
   isDeleted Boolean @default(false)
   deleteType deleteType?
   createdAt DateTime @default(now())
+
+  conversation conversation @relation(fields: [conversationId], references: [id])
+
+  senderMember conversationMember @relation(fields: [conversationId, senderId], references: [conversationId, userId])
 }

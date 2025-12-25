@@ -1,5 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common'
-import { AddMemberToConversationDTO, CreateConversationDTO } from './dto/chat.dto'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import {
+  AddMemberToConversationDTO,
+  CreateConversationDTO,
+} from './dto/chat.dto'
 import { ChatService } from './chat.service'
 import { RequireLogin, UserInfo } from '@app/common/common.decorator'
 @Controller('chat')
@@ -36,17 +39,42 @@ export class ChatController {
    * publish sự kiện có member mới và rabbitmq
    * realtime gateway lawnsng nghe sự kiện và push conversation về cho member
    * done
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
    */
 
+  @Get('conversations')
+  @RequireLogin()
+  async getConversations(
+    @UserInfo() userInfo: any,
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const params = {
+      limit: limit ? parseInt(limit, 10) : 20,
+      page: page ? parseInt(page, 10) : 1,
+    }
 
+    const res = await this.chatService.getConversations(userInfo.userId, params)
 
+    return res
+  }
 
+  @Get('messages/:conversationId')
+  @RequireLogin()
+  async getMessagesByConversationId(
+    @Param('conversationId') conversationId: string,
+    @UserInfo() userInfo: any,
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const params = {
+      limit: limit ? parseInt(limit, 10) : 20,
+      page: page ? parseInt(page, 10) : 1,
+    }
+    const res = await this.chatService.getMessagesByConversationId(
+      conversationId,
+      userInfo.userId,
+      params,
+    )
+    return res
+  }
 }

@@ -1,5 +1,3 @@
-'use client'
-
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,49 +7,73 @@ import {
   Paperclip,
   Smile,
   Send,
-  FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-export interface Message {
-  id: string
-  content: string
-  timestamp: string
-  isMine: boolean
-  type?: 'text' | 'file' | 'system'
-  fileData?: {
-    name: string
-    size: string
-  }
-}
-
-interface User {
-  id: string
-  name: string
-  avatar: string
-  status: string
-}
+import {
+  getMessages,
+  type ConversationState,
+  type Message,
+} from '@/redux/slices/conversationSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { formatDateTime } from '@/utils/formatDateTime'
+import type { AppDispatch } from '@/redux/store'
+import { selectUser } from '@/redux/slices/userSlice'
 
 interface ChatWindowProps {
-  user?: User
-  messages?: Message[]
+  conversationId?: string
   onToggleProfile: () => void
   onVoiceCall: () => void
 }
 
 export function ChatWindow({
-  user,
-  messages,
+  conversationId,
   onToggleProfile,
   onVoiceCall,
 }: ChatWindowProps) {
-  if (!user) {
+  const dispatch = useDispatch<AppDispatch>()
+
+  const conversation = useSelector(
+    (state: { conversations: ConversationState }) => {
+      return state.conversations.conversations?.find(
+        (c) => c.id === conversationId
+      )
+    }
+  )
+
+  const user = useSelector(selectUser)
+
+  const [messages, setMessages] = useState<Message[]>(
+    conversation?.messages || []
+  )
+
+  useEffect(() => {
+    if (
+      conversation?.messages === undefined ||
+      conversation?.messages.length <= 1
+    ) {
+      dispatch(
+        getMessages({
+          conversationId: conversationId || '',
+          limit: 10,
+          page: 1,
+        })
+      )
+        .unwrap()
+        .then((res) => {
+          setMessages(res.messages)
+        })
+    }
+  }, [conversation, conversationId, dispatch])
+
+  if (!conversationId) {
     return (
       <div className='flex-1 flex items-center justify-center bg-bg-box-chat text-gray-500'>
         Select a chat to start messaging
       </div>
     )
   }
+  //get messages from conversation
 
   return (
     <div className='flex-1 flex flex-col bg-bg-box-chat'>
@@ -63,14 +85,16 @@ export function ChatWindow({
         >
           <Avatar className='w-10 h-10'>
             <AvatarImage
-              src={user.avatar || '/placeholder.svg'}
-              alt={user.name}
+              src={conversation?.groupAvatar || '/placeholder.svg'}
+              alt={conversation?.groupName || 'Group Avatar'}
             />
-            <AvatarFallback>{user.name[0]}</AvatarFallback>
+            <AvatarFallback>{conversation?.groupName?.[0]}</AvatarFallback>
           </Avatar>
           <div className='text-left'>
-            <div className='font-medium text-text'>{user.name}</div>
-            <div className='text-xs text-gray-400'>{user.status}</div>
+            <div className='font-medium text-text'>
+              {conversation?.groupName}
+            </div>
+            <div className='text-xs text-gray-400'>{conversation?.type}</div>
           </div>
         </button>
 
@@ -103,12 +127,12 @@ export function ChatWindow({
 
       {/* Messages */}
       <div className='flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar'>
-        {messages?.map((message) => (
+        {messages?.map((message: Message) => (
           <div key={message.id}>
-            {message.type === 'system' ? (
+            {/* {message.type === 'system' ? (
               <div className='flex justify-center'>
                 <div className='bg-bg-box-message-incoming px-4 py-2 rounded-full text-xs text-gray-400'>
-                  {message.content}
+                  {message.text}
                 </div>
               </div>
             ) : message.type === 'file' ? (
@@ -163,7 +187,29 @@ export function ChatWindow({
                   </span>
                 </div>
               </div>
-            )}
+            )} */}
+            <div
+              className={cn(
+                'flex',
+                message.senderMember?.userId === user.id
+                  ? 'justify-end'
+                  : 'justify-start'
+              )}
+            >
+              <div
+                className={cn(
+                  'max-w-md px-4 py-3 rounded-2xl',
+                  message.senderMember?.userId === user.id
+                    ? 'bg-bg-box-message-out text-text rounded-br-md'
+                    : 'bg-bg-box-message-incoming text-text rounded-bl-md'
+                )}
+              >
+                <p className='text-sm break-words'>{message.text}</p>
+                <span className='text-xs opacity-70 mt-1 block'>
+                  {formatDateTime(message.createdAt)}
+                </span>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -177,7 +223,7 @@ export function ChatWindow({
         >
           <Paperclip className='w-5 h-5' />
         </Button>
-        
+
         <input
           type='text'
           placeholder='Write a message...'

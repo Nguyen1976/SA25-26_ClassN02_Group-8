@@ -7,6 +7,8 @@ import "google/protobuf/timestamp.proto";
 service ChatGrpcService {
   rpc createConversation (CreateConversationRequest) returns (CreateConversationResponse) {}
   rpc addMemberToConversation (AddMemberToConversationRequest) returns (AddMemberToConversationResponse) {}
+  rpc getConversations (GetConversationsRequest) returns (GetConversationsResponse) {}
+  rpc getMessagesByConversationId (GetMessagesRequest) returns (GetMessagesResponse) {}
 }
 
 message CreateConversationRequest {
@@ -33,4 +35,66 @@ message AddMemberToConversationRequest {
 
 message AddMemberToConversationResponse {
   string status = 1;
+}
+
+message GetConversationsRequest {
+  string userId = 1;
+  string limit = 2;
+  string page = 3;
+}
+
+message Message {
+  string id = 1;
+  string conversationId = 2;
+  string senderId = 3;
+  string text = 4;
+  optional string replyToMessageId = 5;
+  bool isDeleted = 6;
+  string deleteType = 7;
+  string createdAt = 8;
+  SenderMember senderMember = 9;
+}
+
+message ConversationMember {
+  string userId = 1;
+  optional string lastReadAt = 2; // timestamp (ms)
+  optional string username = 3;
+  optional string avatar = 4;
+}
+
+message Conversation {
+  string id = 1;
+  string type = 2;
+  string unreadCount = 3;
+
+  optional string groupName = 4;   
+  optional string groupAvatar = 5;
+
+  string createdAt = 6;
+  optional string updatedAt = 7;
+
+  repeated ConversationMember members = 8;
+  repeated Message messages = 9;
+}
+
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+}
+
+message GetMessagesRequest {
+  string conversationId = 1;
+  string userId = 2;
+  string limit = 3;
+  string page = 4;
+}
+
+message SenderMember {
+  string userId = 1;
+  string username = 2;
+  string avatar = 3;
+}
+
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
 }

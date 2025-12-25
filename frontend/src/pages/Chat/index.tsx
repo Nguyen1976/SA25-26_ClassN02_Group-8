@@ -1,63 +1,49 @@
-'use client'
-
 import { useState } from 'react'
-import { mockUsers, mockMessages } from '@/lib/mock-data'
 import { ChatSidebar } from '@/components/ChatSidebar'
-import { ChatWindow, type Message } from '@/components/ChatWindow'
+import { ChatWindow } from '@/components/ChatWindow'
 import { NewChatModal } from '@/components/NewChatModal'
 import { ProfilePanel } from '@/components/ProfilePanel'
 import { VoiceCallModal } from '@/components/VoiceCallModal'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 export default function ChatPage() {
-  const [selectedUserId, setSelectedUserId] = useState('2')
   const [showProfile, setShowProfile] = useState(false)
   const [showNewChat, setShowNewChat] = useState(false)
   const [showVoiceCall, setShowVoiceCall] = useState(false)
-
-  const selectedUser = mockUsers.find((u) => u.id === selectedUserId)
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
       <div className='flex h-screen bg-bg-box-chat text-text overflow-hidden'>
         <ChatSidebar
-          users={mockUsers}
-          selectedUserId={selectedUserId}
-          onSelectUser={setSelectedUserId}
+          setSelectedChatId={setSelectedChatId}
           onNewChat={() => setShowNewChat(true)}
+          selectedChatId={selectedChatId}
         />
 
         <ChatWindow
-          user={selectedUser}
-          messages={mockMessages[selectedUserId] as Message[]}
+          conversationId={selectedChatId || undefined}
           onToggleProfile={() => setShowProfile(!showProfile)}
           onVoiceCall={() => setShowVoiceCall(true)}
         />
 
+        {/*
         {showProfile && selectedUser && (
           <ProfilePanel
             user={selectedUser}
             onClose={() => setShowProfile(false)}
           />
-        )}
+        )} */}
 
-        {showNewChat && (
-          <NewChatModal
-            users={mockUsers}
-            onClose={() => setShowNewChat(false)}
-            onSelectUser={(userId) => {
-              setSelectedUserId(userId)
-              setShowNewChat(false)
-            }}
-          />
-        )}
+        {showNewChat && <NewChatModal onClose={() => setShowNewChat(false)} />}
 
+        {/*
         {showVoiceCall && selectedUser && (
           <VoiceCallModal
             user={selectedUser}
             onClose={() => setShowVoiceCall(false)}
           />
-        )}
+        )} */}
       </div>
     </ThemeProvider>
   )

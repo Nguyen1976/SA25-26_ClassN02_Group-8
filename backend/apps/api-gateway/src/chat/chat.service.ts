@@ -71,4 +71,29 @@ export class ChatService implements OnModuleInit {
     const observable = this.chatClientService.addMemberToConversation(dto)
     return await firstValueFrom(observable)
   }
+
+  async getConversations(userId: string, params: any) {
+    const observable = this.chatClientService.getConversations({
+      userId,
+      limit: params.limit,
+      page: params.page,
+    })
+    const res = await firstValueFrom(observable)
+    return res
+  }
+
+  async getMessagesByConversationId(
+    conversationId: string,
+    userId: string,
+    params: any,
+  ) {
+    const observable = this.chatClientService.getMessagesByConversationId({
+      conversationId,
+      userId,
+      limit: params.limit,
+      page: params.page,
+    })
+    const res = await firstValueFrom(observable)
+    return res
+  }
 }

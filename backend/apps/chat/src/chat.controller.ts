@@ -4,8 +4,11 @@ import { GrpcMethod, RpcException } from '@nestjs/microservices'
 import {
   type AddMemberToConversationRequest,
   CHAT_GRPC_SERVICE_NAME,
-  CreateConversationResponse,
+  type CreateConversationResponse,
   type CreateConversationRequest,
+  type GetConversationsRequest,
+  GetConversationsResponse,
+  type GetMessagesRequest,
 } from 'interfaces/chat.grpc'
 import { Metadata, status } from '@grpc/grpc-js'
 
@@ -36,5 +39,27 @@ export class ChatController {
         message: error.message || 'Internal server error',
       })
     }
+  }
+
+  @GrpcMethod(CHAT_GRPC_SERVICE_NAME, 'getConversations')
+  async getConversations(
+    data: GetConversationsRequest,
+    metadata: Metadata,
+  ): Promise<GetConversationsResponse> {
+    const res = await this.chatService.getConversations(data.userId, data)
+    return res
+  }
+
+  @GrpcMethod(CHAT_GRPC_SERVICE_NAME, 'getMessagesByConversationId')
+  async getMessagesByConversationId(
+    data: GetMessagesRequest,
+    metadata: Metadata,
+  ): Promise<any> {
+    const res = await this.chatService.getMessagesByConversationId(
+      data.conversationId,
+      data.userId,
+      { limit: data.limit, page: data.page },
+    )
+    return res
   }
 }

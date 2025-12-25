@@ -37,6 +37,65 @@ export interface AddMemberToConversationResponse {
   status: string;
 }
 
+export interface GetConversationsRequest {
+  userId: string;
+  limit: string;
+  page: string;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  text: string;
+  replyToMessageId?: string | undefined;
+  isDeleted: boolean;
+  deleteType: string;
+  createdAt: string;
+  senderMember: SenderMember | undefined;
+}
+
+export interface ConversationMember {
+  userId: string;
+  /** timestamp (ms) */
+  lastReadAt?: string | undefined;
+  username?: string | undefined;
+  avatar?: string | undefined;
+}
+
+export interface Conversation {
+  id: string;
+  type: string;
+  unreadCount: string;
+  groupName?: string | undefined;
+  groupAvatar?: string | undefined;
+  createdAt: string;
+  updatedAt?: string | undefined;
+  members: ConversationMember[];
+  messages: Message[];
+}
+
+export interface GetConversationsResponse {
+  conversations: Conversation[];
+}
+
+export interface GetMessagesRequest {
+  conversationId: string;
+  userId: string;
+  limit: string;
+  page: string;
+}
+
+export interface SenderMember {
+  userId: string;
+  username: string;
+  avatar: string;
+}
+
+export interface GetMessagesResponse {
+  messages: Message[];
+}
+
 export const CHAT_PACKAGE_NAME = "chat";
 
 export interface ChatGrpcServiceClient {
@@ -46,6 +105,10 @@ export interface ChatGrpcServiceClient {
     request: AddMemberToConversationRequest,
     metadata?: Metadata,
   ): Observable<AddMemberToConversationResponse>;
+
+  getConversations(request: GetConversationsRequest, metadata?: Metadata): Observable<GetConversationsResponse>;
+
+  getMessagesByConversationId(request: GetMessagesRequest, metadata?: Metadata): Observable<GetMessagesResponse>;
 }
 
 export interface ChatGrpcServiceController {
@@ -61,11 +124,26 @@ export interface ChatGrpcServiceController {
     | Promise<AddMemberToConversationResponse>
     | Observable<AddMemberToConversationResponse>
     | AddMemberToConversationResponse;
+
+  getConversations(
+    request: GetConversationsRequest,
+    metadata?: Metadata,
+  ): Promise<GetConversationsResponse> | Observable<GetConversationsResponse> | GetConversationsResponse;
+
+  getMessagesByConversationId(
+    request: GetMessagesRequest,
+    metadata?: Metadata,
+  ): Promise<GetMessagesResponse> | Observable<GetMessagesResponse> | GetMessagesResponse;
 }
 
 export function ChatGrpcServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createConversation", "addMemberToConversation"];
+    const grpcMethods: string[] = [
+      "createConversation",
+      "addMemberToConversation",
+      "getConversations",
+      "getMessagesByConversationId",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ChatGrpcService", method)(constructor.prototype[method], method, descriptor);

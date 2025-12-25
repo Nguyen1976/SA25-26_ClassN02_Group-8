@@ -10,6 +10,8 @@ import {
   type AddMemberToConversationResponse,
   CreateConversationRequest,
   type CreateConversationResponse,
+  type GetConversationsResponse,
+  GetMessagesResponse,
 } from 'interfaces/chat.grpc'
 import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 import type {
@@ -200,7 +202,125 @@ export class ChatService {
     return {
       status: 'SUCCESS',
     }
+  }
 
-    //nhận vào conversationId, memberIds[]
+  async getConversations(
+    userId: string,
+    params: any,
+  ): Promise<GetConversationsResponse> {
+    const take = params.limit || 20
+    const page = params.page || 1
+    const skip = (page - 1) * take
+
+    const conversations = await this.prisma.conversation.findMany({
+      where: {
+        members: {
+          some: { userId },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+      skip,
+      take: parseInt(take),
+      include: {
+        members: {
+          select: {
+            userId: true,
+            username: true,
+            avatar: true,
+            lastReadAt: true,
+          },
+        },
+
+        // last message
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            text: true,
+            senderId: true,
+            createdAt: true,
+            conversationId: true,
+            replyToMessageId: true,
+            isDeleted: true,
+            deleteType: true,
+            senderMember: {
+              select: {
+                userId: true,
+                username: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return {
+      conversations: conversations.map((c) => ({
+        id: c.id,
+        unreadCount: '0', //todo
+        type: c.type,
+        groupName: c.groupName,
+        groupAvatar: c.groupAvatar,
+        createdAt: c.createdAt.toString(),
+        updatedAt: c.updatedAt.toString(),
+        members: c.members.map((m) => ({
+          ...m,
+          lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : '',
+        })),
+        messages: c.messages.map((msg) => ({
+          ...msg,
+          createdAt: msg.createdAt.toString(),
+        })),
+      })),
+    } as GetConversationsResponse
+  }
+
+  async getMessagesByConversationId(
+    conversationId: string,
+    userId: string,
+    params: any,
+  ): Promise<any> {
+    //check user is member of conversation
+    const isMember = await this.prisma.conversationMember.findFirst({
+      where: {
+        conversationId,
+        userId,
+      },
+    })
+    if (!isMember) {
+      throw new RpcException({
+        code: status.FAILED_PRECONDITION,
+        message: 'User is not a member of the conversation',
+      })
+    }
+    const take = params.limit || 20
+    const page = params.page || 1
+    const skip = (page - 1) * take
+    const messages = await this.prisma.message.findMany({
+      where: {
+        conversationId,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: parseInt(take),
+      include: {
+        senderMember: {
+          select: {
+            userId: true,
+            username: true,
+            avatar: true,
+          },
+        },
+      },
+    })
+
+    return {
+      messages: messages.map((m) => ({
+        ...m,
+        createdAt: m.createdAt.toString(),
+      })),
+    } as GetMessagesResponse
   }
 }
