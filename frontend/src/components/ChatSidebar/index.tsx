@@ -12,7 +12,7 @@ import {
 } from '../ui/dropdown-menu'
 import type { AppDispatch } from '@/redux/store'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   getConversations,
   selectConversation,
@@ -39,8 +39,16 @@ export function ChatSidebar({
     }
   }, [dispatch, conversations?.length])
 
+  const [page, setPage] = useState(1)
+
+  const loadMoreConversations = () => {
+    const nextPage = page + 1
+    dispatch(getConversations({ limit: 10, page: nextPage }))
+    setPage(nextPage)
+  }
+
   return (
-    <div className='bg-black-bland border-r border-bg-box-message-incoming flex flex-col custom-scrollbar'>
+    <div className='w-1/3 bg-black-bland border-r border-bg-box-message-incoming flex flex-col custom-scrollbar'>
       <div className='flex items-center justify-between p-4 border-b border-bg-box-message-incoming'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -124,6 +132,14 @@ export function ChatSidebar({
               )}
           </button>
         ))}
+        <div className='w-full flex items-center justify-center my-4'>
+          <Button
+            className='interceptor-loading'
+            onClick={() => loadMoreConversations()}
+          >
+            Load More
+          </Button>
+        </div>
       </div>
     </div>
   )

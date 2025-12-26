@@ -115,7 +115,7 @@ export class ChatService {
         },
       },
     })
-    
+    console.log('Created conversation:', res)
     return {
       conversation: {
         id: res?.id,
@@ -129,10 +129,11 @@ export class ChatService {
           ...m,
           lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : '',
         })),
-        messages: res?.messages.map((msg) => ({
-          ...msg,
-          createdAt: msg.createdAt.toString(),
-        })),
+        messages:
+          res?.messages?.map((msg) => ({
+            ...msg,
+            createdAt: msg.createdAt.toString(),
+          })) || [],
       },
     } as CreateConversationResponse
   }

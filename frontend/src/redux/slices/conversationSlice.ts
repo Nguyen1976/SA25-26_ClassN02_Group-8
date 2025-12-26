@@ -116,20 +116,26 @@ export const conversationSlice = createSlice({
           }>
         ) => {
           const { conversations, userId } = action.payload
-          state = conversations?.map((c) => ({
-            ...c,
-            groupName:
-              c.type === 'DIRECT'
-                ? c.members.find((p: ConversationMember) => p.userId !== userId)
-                    ?.username || ''
-                : c.groupName,
-            groupAvatar:
-              c.type === 'DIRECT'
-                ? c.members.find((p: ConversationMember) => p.userId !== userId)
-                    ?.avatar || ''
-                : c.groupAvatar,
-            messages: c.messages !== undefined ? c.messages : [],
-          })) as Conversation[]
+          const oldState = state || []
+          state = [
+            ...oldState,
+            ...(conversations?.map((c) => ({
+              ...c,
+              groupName:
+                c.type === 'DIRECT'
+                  ? c.members.find(
+                      (p: ConversationMember) => p.userId !== userId
+                    )?.username || ''
+                  : c.groupName,
+              groupAvatar:
+                c.type === 'DIRECT'
+                  ? c.members.find(
+                      (p: ConversationMember) => p.userId !== userId
+                    )?.avatar || ''
+                  : c.groupAvatar,
+              messages: c.messages !== undefined ? c.messages : [],
+            })) as Conversation[]),
+          ]
           return state
         }
       )

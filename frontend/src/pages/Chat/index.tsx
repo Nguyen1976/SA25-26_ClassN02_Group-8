@@ -33,23 +33,21 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/*
-        {showProfile && selectedUser && (
+        {showProfile && selectedChatId && (
           <ProfilePanel
-            user={selectedUser}
+            conversationId={selectedChatId}
             onClose={() => setShowProfile(false)}
           />
-        )} */}
+        )}
 
         {showNewChat && <NewChatModal onClose={() => setShowNewChat(false)} />}
 
-        {/*
-        {showVoiceCall && selectedUser && (
+        {showVoiceCall && selectedChatId && (
           <VoiceCallModal
-            user={selectedUser}
+            conversationId={selectedChatId}
             onClose={() => setShowVoiceCall(false)}
           />
-        )} */}
+        )}
       </div>
     </ThemeProvider>
   )

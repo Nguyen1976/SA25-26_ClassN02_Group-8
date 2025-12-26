@@ -34,9 +34,9 @@ export function NewChatModal({ onClose }: NewChatModalProps) {
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { register, handleSubmit } = useForm()
+  const { register, handleSubmit } = useForm<{ groupName: string }>()
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: { groupName: string }) => {
     dispatch(
       createConversation({
         groupName: data.groupName,

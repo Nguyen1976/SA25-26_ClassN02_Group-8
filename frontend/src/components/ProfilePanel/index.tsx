@@ -1,22 +1,24 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import type {
+  Conversation,
+  ConversationState,
+} from '@/redux/slices/conversationSlice'
 import { X } from 'lucide-react'
-
-interface User {
-  id: string
-  name: string
-  avatar: string
-  status: string
-  bio?: string
-  phone?: string
-}
+import { useSelector } from 'react-redux'
 
 interface ProfilePanelProps {
-  user: User
+  conversationId: string
   onClose: () => void
 }
 
-export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
+export function ProfilePanel({ conversationId, onClose }: ProfilePanelProps) {
+  const conversation = useSelector(
+    (state: { conversations: ConversationState }) => {
+      return state.conversations?.find((c) => c.id === conversationId)
+    }
+  ) as Conversation
+
   return (
     <div className='bg-black-bland border-l border-bg-box-message-incoming flex flex-col custom-scrollbar'>
       <div className='flex items-center justify-between p-4 border-b border-bg-box-message-incoming'>
@@ -37,32 +39,34 @@ export function ProfilePanel({ user, onClose }: ProfilePanelProps) {
           <div className='flex flex-col items-center'>
             <Avatar className='w-32 h-32 mb-4'>
               <AvatarImage
-                src={user.avatar || '/placeholder.svg'}
-                alt={user.name}
+                src={conversation.groupAvatar || '/placeholder.svg'}
+                alt={conversation.groupName}
               />
               <AvatarFallback className='text-3xl'>
-                {user.name[0]}
+                {conversation.groupName?.[0]}
               </AvatarFallback>
             </Avatar>
-            <h3 className='text-xl font-semibold text-text'>{user.name}</h3>
-            <p className='text-sm text-gray-400'>{user.status}</p>
+            <h3 className='text-xl font-semibold text-text'>
+              {conversation.groupName}
+            </h3>
+            {/* <p className='text-sm text-gray-400'>{conversation.groupStatus}</p> */}
           </div>
 
           {/* Bio */}
-          {user.bio && (
+          {/* {conversation.bio && (
             <div>
               <h4 className='text-sm font-medium text-gray-400 mb-2'>Bio</h4>
-              <p className='text-sm text-text'>{user.bio}</p>
+              <p className='text-sm text-text'>{conversation.bio}</p>
             </div>
-          )}
+          )} */}
 
           {/* Phone */}
-          {user.phone && (
+          {/* {conversation.phone && (
             <div>
               <h4 className='text-sm font-medium text-gray-400 mb-2'>Mobile</h4>
-              <p className='text-sm text-text'>{user.phone}</p>
+              <p className='text-sm text-text'>{conversation.phone}</p>
             </div>
-          )}
+          )} */}
 
           {/* Settings */}
           <div className='space-y-4'>

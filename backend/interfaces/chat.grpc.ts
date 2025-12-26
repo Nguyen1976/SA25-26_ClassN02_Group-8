@@ -20,7 +20,7 @@ export interface CreateConversationRequest {
 }
 
 export interface CreateConversationResponse {
-  conversation: Conversation | undefined;
+  conversation: Conversation;
 }
 
 export interface AddMemberToConversationRequest {
