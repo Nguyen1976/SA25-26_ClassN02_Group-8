@@ -1,8 +1,15 @@
 import { IsNotEmpty } from 'class-validator'
 
+export interface Member {
+  username: string
+  avatar?: string | undefined
+  userId: string
+  lastReadAt?: string | undefined
+}
+
 export class CreateConversationDTO {
   @IsNotEmpty()
-  memberIds: string[]
+  members: Member[]
 
   @IsNotEmpty()
   groupName: string

@@ -187,10 +187,12 @@ export class UserService {
       },
     })
 
+    let inviterUpdate
+    let inviteeUpdate
     //nếu chấp nhận thì update friend ở cả 2 user
     if (data.status === Status.ACCEPTED) {
       //update mảng friends trong user của cả 2
-      await this.prisma.user.update({
+      inviterUpdate = await this.prisma.user.update({
         where: {
           id: data.inviterId,
         },
@@ -200,7 +202,7 @@ export class UserService {
           },
         },
       })
-      await this.prisma.user.update({
+      inviteeUpdate = await this.prisma.user.update({
         where: {
           id: data.inviteeId,
         },
@@ -217,6 +219,18 @@ export class UserService {
       inviteeId: data.inviteeId,
       inviteeName: data.inviteeName,
       status: data.status,
+      members: [
+        {
+          userId: data.inviterId,
+          username: inviterUpdate.username,
+          avatar: inviterUpdate.avatar || '',
+        },
+        {
+          userId: data.inviteeId,
+          username: inviteeUpdate.username,
+          avatar: inviteeUpdate.avatar || '',
+        },
+      ],
     }
 
     this.amqpConnection.publish(
@@ -250,6 +264,7 @@ export class UserService {
         id: true,
         email: true,
         username: true,
+        avatar: true,
       },
     })
     return { friends } as ListFriendsResponse

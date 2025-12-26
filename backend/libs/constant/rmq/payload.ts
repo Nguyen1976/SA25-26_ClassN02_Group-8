@@ -18,6 +18,7 @@ export interface UserUpdateStatusMakeFriendPayload {
   inviteeId: string
   inviteeName: string
   status: string
+  members: { userId: string; username: string; avatar: string }[]
 }
 
 export interface SendMessagePayload {

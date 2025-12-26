@@ -4,6 +4,7 @@ import {
   CHAT_GRPC_SERVICE_NAME,
   CreateConversationRequest,
   CreateConversationResponse,
+  Member,
 } from 'interfaces/chat.grpc'
 import { NotificationGrpcServiceClient } from 'interfaces/notification.grpc'
 import { SOCKET_EVENTS } from 'libs/constant/websocket/socket.events'
@@ -50,10 +51,11 @@ export class ChatService implements OnModuleInit {
     const res = await firstValueFrom(observable)
 
     await this.realtimeGateway.emitToUser(
-      dto.memberIds.filter((id) => id !== dto.createrId),
+      dto.members.filter((member: Member) => member.userId !== dto.createrId).map((member: Member) => member.userId),
       SOCKET_EVENTS.CHAT.NEW_CONVERSATION,
       res,
     )
+
     return res as CreateConversationResponse
   }
 

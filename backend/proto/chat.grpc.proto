@@ -11,9 +11,16 @@ service ChatGrpcService {
   rpc getMessagesByConversationId (GetMessagesRequest) returns (GetMessagesResponse) {}
 }
 
+message Member {
+  string username = 1;
+  optional string avatar = 2;
+  string userId = 3;
+  optional string lastReadAt = 4;
+}
+
 message CreateConversationRequest {
     string type = 1;
-    repeated string memberIds = 2;
+    repeated Member members = 2;
     optional string groupName = 3;
     optional string groupAvatar = 4;
     optional string createrId = 5;

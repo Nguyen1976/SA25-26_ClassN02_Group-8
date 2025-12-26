@@ -6,8 +6,12 @@ import { X, Search, Camera } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Checkbox } from '../ui/checkbox'
 import { Input } from '../ui/input'
-import { useDispatch } from 'react-redux'
-import { getFriends, type FriendState } from '@/redux/slices/friendSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  getFriends,
+  selectFriend,
+  type FriendState,
+} from '@/redux/slices/friendSlice'
 import type { AppDispatch } from '@/redux/store'
 import { useForm } from 'react-hook-form'
 import { createConversation } from '@/redux/slices/conversationSlice'
@@ -36,11 +40,19 @@ export function NewChatModal({ onClose }: NewChatModalProps) {
 
   const { register, handleSubmit } = useForm<{ groupName: string }>()
 
+  const friendsOnStore = useSelector(selectFriend)
+
   const onSubmit = (data: { groupName: string }) => {
     dispatch(
       createConversation({
         groupName: data.groupName,
-        memberIds: slectedFriends,
+        members: friendsOnStore.friends
+          .filter((friend) => slectedFriends.includes(friend.id))
+          .map((friend) => ({
+            userId: friend.id,
+            username: friend.username,
+            avatar: friend.avatar,
+          })),
       })
     )
       .unwrap()

@@ -12,6 +12,7 @@ import {
   type CreateConversationResponse,
   type GetConversationsResponse,
   GetMessagesResponse,
+  Member,
 } from 'interfaces/chat.grpc'
 import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 import type {
@@ -42,7 +43,7 @@ export class ChatService {
     if (!(data.status === Status.ACCEPTED)) return
     const conversation = await this.createConversation({
       type: conversationType.DIRECT,
-      memberIds: [data.inviterId, data.inviteeId],
+      members: data.members,
       createrId: data.inviterId,
     })
     this.amqpConnection.publish(
@@ -67,11 +68,13 @@ export class ChatService {
 
     //ở lần sau sẽ tối ưu bằng transaction
     await this.prisma.conversationMember.createMany({
-      data: data.memberIds.map((memberId) => ({
+      data: data.members.map((member: Member) => ({
+        ...member,
         conversationId: conversation.id,
-        userId: memberId,
+        userId: member.userId,
         role:
-          data.type === conversationType.GROUP && data.createrId === memberId
+          data.type === conversationType.GROUP &&
+          data.createrId === member.userId
             ? 'admin'
             : 'member',
       })),
@@ -115,7 +118,7 @@ export class ChatService {
         },
       },
     })
-    console.log('Created conversation:', res)
+
     return {
       conversation: {
         id: res?.id,
@@ -302,7 +305,7 @@ export class ChatService {
         },
       },
     })
-
+    console.log('conversations', conversations[0].members)
     return {
       conversations: conversations.map((c) => ({
         id: c.id,

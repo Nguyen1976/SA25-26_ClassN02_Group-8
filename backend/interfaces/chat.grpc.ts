@@ -11,16 +11,23 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "chat";
 
+export interface Member {
+  username: string;
+  avatar?: string | undefined;
+  userId: string;
+  lastReadAt?: string | undefined;
+}
+
 export interface CreateConversationRequest {
   type: string;
-  memberIds: string[];
+  members: Member[];
   groupName?: string | undefined;
   groupAvatar?: string | undefined;
   createrId?: string | undefined;
 }
 
 export interface CreateConversationResponse {
-  conversation: Conversation;
+  conversation: Conversation | undefined;
 }
 
 export interface AddMemberToConversationRequest {

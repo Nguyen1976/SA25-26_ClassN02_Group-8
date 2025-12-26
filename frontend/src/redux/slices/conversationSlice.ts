@@ -25,9 +25,9 @@ export interface Message {
 export interface ConversationMember {
   userId: string
   /** timestamp (ms) */
-  lastReadAt?: string | undefined
-  username?: string | undefined
-  avatar?: string | undefined
+  lastReadAt?: string
+  username?: string
+  avatar?: string
 }
 
 export interface Conversation {
@@ -83,16 +83,16 @@ export const getMessages = createAsyncThunk(
 export const createConversation = createAsyncThunk(
   `/chat/create`,
   async ({
-    memberIds,
+    members,
     groupName,
   }: {
-    memberIds: string[]
+    members: ConversationMember[]
     groupName?: string
   }) => {
     const response = await authorizeAxiosInstance.post(
       `${API_ROOT}/chat/create`,
       {
-        memberIds,
+        members,
         groupName,
       }
     )

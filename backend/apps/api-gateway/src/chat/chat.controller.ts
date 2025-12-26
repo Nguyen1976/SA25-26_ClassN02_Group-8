@@ -18,7 +18,14 @@ export class ChatController {
     return await this.chatService.createConversation({
       ...createConversationDto,
       type: 'GROUP',
-      memberIds: [...(createConversationDto.memberIds || []), userInfo.userId],
+      members: [
+        ...(createConversationDto.members || []),
+        {
+          userId: userInfo.userId,
+          username: userInfo.username,
+          avatar: userInfo.avatar,
+        },
+      ],
       createrId: userInfo.userId,
     })
   }
