@@ -8,7 +8,6 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { Timestamp } from "./google/protobuf/timestamp";
 
 export const protobufPackage = "notification";
 
@@ -25,7 +24,7 @@ export interface createNotificationResponse {
   message: string;
   isRead: boolean;
   type: string;
-  createdAt: Timestamp | undefined;
+  createdAt: string;
 }
 
 export interface Notification {

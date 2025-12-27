@@ -136,13 +136,8 @@ export class NotificationService {
       },
     })
     return {
-      id: res.id,
-      userId: res.userId,
-      message: res.message,
-      isRead: res.isRead,
-      type: res.type,
-      friendRequestId: res.friendRequestId,
-      createdAt: this.utilService.dateToTimestamp(res.createdAt),
+      ...res,
+      createdAt: res.createdAt.toString(),
     } as unknown
   }
 

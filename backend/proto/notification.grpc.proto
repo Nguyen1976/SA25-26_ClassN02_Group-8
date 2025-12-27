@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package notification;
 
-import "google/protobuf/timestamp.proto";
-
 service NotificationGrpcService {
   rpc createNotification (createNotificationRequest) returns (createNotificationResponse) {}
   rpc getNotifications (GetNotificationsRequest) returns (GetNotificationsResponse) {}
@@ -22,7 +20,7 @@ message createNotificationResponse {
   string message = 3;
   bool isRead = 4;
   string type = 5;
-  google.protobuf.Timestamp createdAt = 6;
+  string createdAt = 6;
 }
 
 

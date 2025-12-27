@@ -11,10 +11,15 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch } from '@/redux/store'
 import {
+  addNotification,
   getNotifications,
   selectNotification,
+  type Notification,
 } from '@/redux/slices/notificationSlice'
 import { formatDateTime } from '@/utils/formatDateTime'
+import { socket } from '@/lib/socket'
+import useSound from 'use-sound'
+import notificationSound from '@/assets/notification.mp3'
 
 export function NotificationsDropdown() {
   const dispatch = useDispatch<AppDispatch>()
@@ -25,6 +30,20 @@ export function NotificationsDropdown() {
       dispatch(getNotifications({ limit: 10, page: 1 }))
     }
   }, [dispatch, notifications.length])
+
+  const [play] = useSound(notificationSound, { volume: 0.5 })
+
+  useEffect(() => {
+    const onNewNotification = (data: Notification) => {
+      dispatch(addNotification(data))
+      play()
+    }
+    socket.on('notification.new_notification', onNewNotification)
+
+    return () => {
+      socket.off('notification.new_notification', onNewNotification)
+    }
+  }, [dispatch, play])
 
   return (
     <Popover>
@@ -56,7 +75,7 @@ export function NotificationsDropdown() {
           </Button>
         </div>
 
-        <ScrollArea className='h-fit max-h-96'>
+        <ScrollArea className='max-h-96 h-96'>
           {notifications.length > 0 ? (
             <div className='flex flex-col'>
               {notifications.map((n) => (

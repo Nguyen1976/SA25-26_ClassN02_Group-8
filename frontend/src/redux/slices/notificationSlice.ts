@@ -30,12 +30,16 @@ export const getNotifications = createAsyncThunk(
 export const notificationSlice = createSlice({
   name: 'notification',
   initialState,
-  reducers: {},
+  reducers: {
+    addNotification: (state, action: PayloadAction<Notification>) => {
+      state.unshift(action.payload)
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(
       getNotifications.fulfilled,
-      (state, action: PayloadAction<{notifications: NotificationState}>) => {
-        state = action.payload.notifications || [];
+      (state, action: PayloadAction<{ notifications: NotificationState }>) => {
+        state = action.payload.notifications || []
         return state
       }
     )
@@ -48,5 +52,5 @@ export const selectNotification = (state: {
   return state.notification
 }
 
-// export const {} = notificationSlice.actions
+export const { addNotification } = notificationSlice.actions
 export default notificationSlice.reducer
