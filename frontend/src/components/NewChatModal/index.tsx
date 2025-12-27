@@ -121,7 +121,7 @@ export function NewChatModal({ onClose }: NewChatModalProps) {
           </div>
 
           <div className='space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar'>
-            {friends.map((user) => (
+            {friends?.map((user) => (
               <div
                 key={user.id}
                 className='w-full flex items-center gap-3 p-3 hover:bg-button rounded-lg transition-colors'

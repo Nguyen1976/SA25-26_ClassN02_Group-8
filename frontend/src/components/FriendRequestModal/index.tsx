@@ -9,9 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog'
-import { getFriendRequestDetail, updateFriendRequestStatus } from '@/apis'
+import {
+  getFriendRequestDetail,
+  updateFriendRequestStatus,
+  type DetailMakeFriendResponse,
+} from '@/apis'
 import { useSelector } from 'react-redux'
 import { selectUser } from '@/redux/slices/userSlice'
+import { toast } from 'sonner'
 
 interface FriendRequestModalProps {
   friendRequestId: string
@@ -24,26 +29,28 @@ const FriendRequestModal = ({
   friendRequestId,
   onClose,
 }: FriendRequestModalProps) => {
-  const [inviteeData, setInviteeData] = useState<{
-    id: string
-    email: string
-    username: string
-    avatar?: string
-  } | null>(null)
+  const [friendRequestData, setFriendRequestData] =
+    useState<DetailMakeFriendResponse | null>(null)
 
   const user = useSelector(selectUser)
 
   useEffect(() => {
     if (isOpen) {
       getFriendRequestDetail(friendRequestId).then((data) => {
-        setInviteeData(data.fromUser)
+        setFriendRequestData(data)
       })
     }
   }, [isOpen, friendRequestId])
 
   const onAccept = async () => {
+    if (!friendRequestData) return
+    if (friendRequestData.status !== 'PENDING') {
+      toast.error('This friend request has already been responded to.')
+      onClose()
+      return
+    }
     await updateFriendRequestStatus({
-      inviterId: inviteeData?.id || '',
+      inviterId: friendRequestData?.fromUser?.id || '',
       inviteeName: user?.username || '',
       status: 'ACCEPTED',
     }).then(() => {
@@ -52,8 +59,14 @@ const FriendRequestModal = ({
   }
 
   const onReject = async () => {
+    if (!friendRequestData) return
+    if (friendRequestData.status !== 'PENDING') {
+      toast.error('This friend request has already been responded to.')
+      onClose()
+      return
+    }
     await updateFriendRequestStatus({
-      inviterId: inviteeData?.id || '',
+      inviterId: friendRequestData?.fromUser?.id || '',
       inviteeName: user?.username || '',
       status: 'REJECTED',
     }).then(() => {
@@ -73,16 +86,20 @@ const FriendRequestModal = ({
         <div className='flex flex-col items-center justify-center py-6 gap-4'>
           <Avatar className='w-24 h-24 border-4 border-background shadow-lg'>
             <AvatarImage
-              src={inviteeData?.avatar || '/placeholder.svg'}
-              alt={inviteeData?.username || 'User Avatar'}
+              src={friendRequestData?.fromUser?.avatar || '/placeholder.svg'}
+              alt={friendRequestData?.fromUser?.username || 'User Avatar'}
             />
-            <AvatarFallback>{inviteeData?.username[0]}</AvatarFallback>
+            <AvatarFallback>
+              {friendRequestData?.fromUser?.username[0]}
+            </AvatarFallback>
           </Avatar>
           <div className='text-center'>
-            <h3 className='text-xl font-bold'>{inviteeData?.username}</h3>
+            <h3 className='text-xl font-bold'>
+              {friendRequestData?.fromUser?.username}
+            </h3>
             <p className='text-muted-foreground'>
-              {inviteeData?.email ||
-                `${inviteeData?.username
+              {friendRequestData?.fromUser?.email ||
+                `${friendRequestData?.fromUser?.username
                   .toLowerCase()
                   .replace(' ', '.')}@example.com`}
             </p>

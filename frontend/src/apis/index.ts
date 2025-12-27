@@ -18,6 +18,22 @@ export const getFriendRequestDetail = async (friendRequestId: string) => {
   return response.data.data
 }
 
+export interface FromUser {
+  email: string
+  username: string
+  avatar: string
+  id: string
+}
+
+export interface DetailMakeFriendResponse {
+  id: string
+  fromUser: FromUser | undefined
+  toUserId: string
+  status: string
+  createdAt: string
+  updatedAt: string
+}
+
 export const updateFriendRequestStatus = async ({
   inviterId,
   inviteeName,

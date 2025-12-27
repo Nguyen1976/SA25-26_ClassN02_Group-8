@@ -169,6 +169,13 @@ export class UserService {
         message: 'Friend request not found',
       })
     }
+
+    if(friendRequest.status !== Status.PENDING){
+      throw new RpcException({
+        code: status.FAILED_PRECONDITION,
+        message: 'Friend request already responded',
+      })
+    }
     //update status dựa theo status
     await this.prisma.friendRequest.updateMany({
       where: {
