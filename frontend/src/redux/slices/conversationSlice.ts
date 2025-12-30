@@ -62,24 +62,23 @@ export const getConversations = createAsyncThunk(
   }
 )
 
-export const getMessages = createAsyncThunk(
-  `/chat/messages`,
-  async ({
-    conversationId,
-    limit = 20,
-    page = 1,
-  }: {
-    conversationId: string
-    limit?: number
-    page?: number
-  }) => {
-    const response = await authorizeAxiosInstance.get(
-      `${API_ROOT}/chat/messages/${conversationId}?limit=${limit}&page=${page}`
-    )
-    console.log('response messages', response.data.data)
-    return response.data.data
-  }
-)
+// export const getMessages = createAsyncThunk(
+//   `/chat/messages`,
+//   async ({
+//     conversationId,
+//     limit = 20,
+//     page = 1,
+//   }: {
+//     conversationId: string
+//     limit?: number
+//     page?: number
+//   }) => {
+//     const response = await authorizeAxiosInstance.get(
+//       `${API_ROOT}/chat/messages/${conversationId}?limit=${limit}&page=${page}`
+//     )
+//     return response.data.data
+//   }
+// )
 
 export const createConversation = createAsyncThunk(
   `/chat/create`,
@@ -166,20 +165,20 @@ export const conversationSlice = createSlice({
           return state
         }
       )
-      .addCase(
-        getMessages.fulfilled,
-        (
-          state,
-          action: PayloadAction<{ messages: Message[]; conversationId: string }>
-        ) => {
-          const { messages, conversationId } = action.payload
-          const conversation = state?.find((c) => c.id === conversationId)
-          if (conversation) {
-            conversation.lastMessage =
-              messages.length > 0 ? messages[messages.length - 1] : null
-          }
-        }
-      )
+      // .addCase(
+      //   getMessages.fulfilled,
+      //   (
+      //     state,
+      //     action: PayloadAction<{ messages: Message[]; conversationId: string }>
+      //   ) => {
+      //     const { messages, conversationId } = action.payload
+      //     const conversation = state?.find((c) => c.id === conversationId)
+      //     if (conversation) {
+      //       conversation.lastMessage =
+      //         messages.length > 0 ? messages[messages.length - 1] : null
+      //     }
+      //   }
+      // )
       .addCase(
         createConversation.fulfilled,
         (state, action: PayloadAction<{ conversation: Conversation }>) => {

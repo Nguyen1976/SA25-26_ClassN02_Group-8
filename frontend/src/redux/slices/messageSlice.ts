@@ -57,36 +57,25 @@ export const messageSlice = createSlice({
   reducers: {
     addMessage: (state, action: PayloadAction<Message>) => {
       const message = action.payload
-      const list = state.messages[message.conversationId] || []
-      
-      if (message.tempMessageId) {
-        for (const key in state.messages) {
-          const msgs = state.messages[key]
-          const index = msgs.findIndex(
-            (m) => m.tempMessageId === message.tempMessageId
-          )
-          if (index !== -1) {
-            msgs[index] = message
-            return
-          }
-        }
-      } else {
-        list.push(message)
-        state.messages[message.conversationId] = list
+      if (!state.messages[message.conversationId]) {
+        state.messages[message.conversationId] = []
       }
-      return state
+      state.messages[message.conversationId].push(message)
     },
   },
   extraReducers: (builder) => {
     builder.addCase(
       getMessages.fulfilled,
-      (
-        state,
-        action: PayloadAction<{ messages: Message[]; conversationId: string }>
-      ) => {
-        const { messages, conversationId } = action.payload
-        const existing = state.messages[conversationId] || []
-        state.messages[conversationId] = [...messages.reverse(), ...existing]
+      (state, action: PayloadAction<{ messages: Message[] }>) => {
+        const { messages } = action.payload
+        const conversationId = messages[0]?.conversationId
+        if (!state.messages[conversationId || '']) {
+          state.messages[conversationId || ''] = []
+        }
+        state.messages[conversationId || ''] = [
+          ...messages,
+          ...state.messages[conversationId || ''],
+        ]
       }
     )
   },

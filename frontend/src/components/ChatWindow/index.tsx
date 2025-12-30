@@ -10,7 +10,6 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  getMessages,
   type ConversationState,
 } from '@/redux/slices/conversationSlice'
 import { useDispatch, useSelector } from 'react-redux'
@@ -21,6 +20,7 @@ import { selectUser } from '@/redux/slices/userSlice'
 import { socket } from '@/lib/socket'
 import {
   addMessage,
+  getMessages,
   selectMessage,
   type Message,
 } from '@/redux/slices/messageSlice'
