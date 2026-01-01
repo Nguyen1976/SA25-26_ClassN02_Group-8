@@ -9,7 +9,10 @@ import {
   Send,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { type ConversationState } from '@/redux/slices/conversationSlice'
+import {
+  updateLastMessage,
+  type ConversationState,
+} from '@/redux/slices/conversationSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { formatDateTime } from '@/utils/formatDateTime'
@@ -63,7 +66,15 @@ export function ChatWindow({
     const handler = (data: Message) => {
       if (data.conversationId === conversationId) {
         dispatch(addMessage(data))
+        dispatch(
+          updateLastMessage({
+            conversationId: data.conversationId,
+            lastMessage: { ...data },
+          })
+        )
+
         //cap nhat last message trong notification
+        //đưa notification lên đầu
         play()
       }
     }

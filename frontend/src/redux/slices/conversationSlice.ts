@@ -1,26 +1,9 @@
 import authorizeAxiosInstance from '@/utils/authorizeAxios'
 import { API_ROOT } from '@/utils/constant'
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
-
-export interface SenderMember {
-  userId: string
-  username: string
-  avatar: string
-}
-
-export interface Message {
-  id?: string
-  conversationId: string
-  senderId: string
-  text: string
-  replyToMessageId?: string | undefined
-  isDeleted?: boolean
-  deleteType?: string
-  createdAt?: string
-  senderMember: SenderMember | undefined
-}
+import type { Message } from './messageSlice'
 
 export interface ConversationMember {
   userId: string
@@ -61,24 +44,6 @@ export const getConversations = createAsyncThunk(
     return { userId, conversations: response.data.data.conversations }
   }
 )
-
-// export const getMessages = createAsyncThunk(
-//   `/chat/messages`,
-//   async ({
-//     conversationId,
-//     limit = 20,
-//     page = 1,
-//   }: {
-//     conversationId: string
-//     limit?: number
-//     page?: number
-//   }) => {
-//     const response = await authorizeAxiosInstance.get(
-//       `${API_ROOT}/chat/messages/${conversationId}?limit=${limit}&page=${page}`
-//     )
-//     return response.data.data
-//   }
-// )
 
 export const createConversation = createAsyncThunk(
   `/chat/create`,
@@ -128,6 +93,22 @@ export const conversationSlice = createSlice({
             ? conversation.lastMessage
             : null,
       })
+    },
+    updateLastMessage: (
+      state,
+      action: PayloadAction<{ conversationId: string; lastMessage: Message }>
+    ) => {
+      const { conversationId, lastMessage } = action.payload
+      const conversation = state.find((c) => c.id === conversationId)
+      if (conversation) {
+        conversation.lastMessage = { ...lastMessage }
+      }
+      //đưa conversation lên đầu
+      const index = state.findIndex((c) => c.id === conversationId)
+      if (index > -1) {
+        const [conv] = state.splice(index, 1)
+        state.unshift(conv)
+      }
     },
   },
   extraReducers: (builder) => {
@@ -183,7 +164,6 @@ export const conversationSlice = createSlice({
         createConversation.fulfilled,
         (state, action: PayloadAction<{ conversation: Conversation }>) => {
           const c = action.payload.conversation
-
           state.unshift({
             ...c,
             lastMessage: c.lastMessage !== undefined ? c.lastMessage : null,
@@ -193,11 +173,21 @@ export const conversationSlice = createSlice({
   },
 })
 
-export const selectConversation = (state: {
-  conversations: ConversationState
-}): Conversation[] => {
-  return state.conversations ?? []
-}
+export const selectConversation = createSelector(
+  [(state: RootState) => state.conversations],
+  (conversations) => {
+    return conversations
+      .map((c) => ({
+        ...c,
+        lastMessage: c.lastMessage,
+      }))
+      .sort((a, b) => {
+        const t1 = a.lastMessage?.createdAt ?? ''
+        const t2 = b.lastMessage?.createdAt ?? ''
+        return t2.localeCompare(t1)
+      })
+  }
+)
 
 export const selectMessagesByConversationId = (
   state: {
@@ -209,5 +199,5 @@ export const selectMessagesByConversationId = (
   return conversation ? conversation.lastMessage : null
 }
 
-export const { addConversation } = conversationSlice.actions
+export const { addConversation, updateLastMessage } = conversationSlice.actions
 export default conversationSlice.reducer

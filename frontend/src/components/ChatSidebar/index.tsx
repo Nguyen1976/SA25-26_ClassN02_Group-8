@@ -16,6 +16,7 @@ import {
   addConversation,
   getConversations,
   selectConversation,
+  updateLastMessage,
   type Conversation,
 } from '@/redux/slices/conversationSlice'
 import { formatDateTime } from '@/utils/formatDateTime'
@@ -23,6 +24,7 @@ import { socket } from '@/lib/socket'
 import { selectUser } from '@/redux/slices/userSlice'
 import MenuCustome from './Menu'
 import { NotificationsDropdown } from '../NotificationDropdown'
+import type { Message } from '@/redux/slices/messageSlice'
 
 interface ChatSidebarProps {
   setSelectedChatId: (chatId: string) => void
@@ -58,6 +60,26 @@ export function ChatSidebar({
       socket.off('chat.new_conversation', onNewConversation)
     }
   }, [user.id, dispatch])
+
+  useEffect(() => {
+    const handler = (data: Message) => {
+      dispatch(
+        updateLastMessage({
+          conversationId: data.conversationId,
+          lastMessage: { ...data },
+        })
+      )
+
+      //cap nhat last message trong notification
+      //đưa notification lên đầu
+    }
+
+    socket.on('chat.new_message', handler)
+
+    return () => {
+      socket.off('chat.new_message', handler)
+    }
+  }, [dispatch])
 
   const [page, setPage] = useState(1)
 
