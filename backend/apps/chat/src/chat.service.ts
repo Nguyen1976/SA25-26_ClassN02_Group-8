@@ -187,6 +187,12 @@ export class ChatService {
       },
     })
 
+    //update conversation updatedAt
+    await this.prisma.conversation.update({
+      where: { id: data.conversationId },
+      data: { updatedAt: new Date() },
+    })
+
     await this.amqpConnection.publish(
       EXCHANGE_RMQ.CHAT_EVENTS,
       ROUTING_RMQ.MESSAGE_SENT,
@@ -269,8 +275,8 @@ export class ChatService {
     userId: string,
     params: any,
   ): Promise<GetConversationsResponse> {
-    const take = params.limit || 20
-    const page = params.page || 1
+    const take = Number(params.limit) || 20
+    const page = Number(params.page) || 1
     const skip = (page - 1) * take
 
     const conversations = await this.prisma.conversation.findMany({
@@ -281,7 +287,7 @@ export class ChatService {
       },
       orderBy: { updatedAt: 'desc' },
       skip,
-      take: parseInt(take),
+      take,
       include: {
         members: {
           select: {
@@ -292,8 +298,6 @@ export class ChatService {
             lastReadMessageId: true,
           },
         },
-
-        // last message
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1,
@@ -318,26 +322,69 @@ export class ChatService {
       },
     })
 
+    const readAtMap = new Map<string, Date | null>()
+
+    for (const c of conversations) {
+      const me = c.members.find((m) => m.userId === userId)
+      readAtMap.set(c.id, me?.lastReadAt ?? null)
+    }
+
+    type UnreadCount = string
+    const unreadMap = new Map<string, UnreadCount>()
+
+    await Promise.all(
+      conversations.map(async (c) => {
+        const lastReadAt = readAtMap.get(c.id)
+
+        const unreadMessages = await this.prisma.message.findMany({
+          where: {
+            conversationId: c.id,
+            ...(lastReadAt && {
+              createdAt: { gt: lastReadAt },
+            }),
+            isDeleted: false,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 6,
+          select: { id: true },
+        })
+
+        if (unreadMessages.length === 0) {
+          unreadMap.set(c.id, '0')
+        } else if (unreadMessages.length <= 5) {
+          unreadMap.set(c.id, String(unreadMessages.length))
+        } else {
+          unreadMap.set(c.id, '5+')
+        }
+      }),
+    )
+
     return {
-      conversations: conversations.map((c) => ({
-        id: c.id,
-        unreadCount: '0', //todo
-        type: c.type,
-        groupName: c.groupName,
-        groupAvatar: c.groupAvatar,
-        createdAt: c.createdAt.toString(),
-        updatedAt: c.updatedAt.toString(),
-        members: c.members.map((m) => ({
-          ...m,
-          lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : '',
-        })),
-        lastMessage: c.messages.length
-          ? {
-              ...c.messages[0],
-              createdAt: c.messages[0].createdAt.toString(),
-            }
-          : null,
-      })),
+      conversations: conversations.map((c) => {
+        const unreadCount = unreadMap.get(c.id) ?? 0
+
+        return {
+          id: c.id,
+          type: c.type,
+          groupName: c.groupName,
+          groupAvatar: c.groupAvatar,
+          unreadCount,
+          createdAt: c.createdAt.toString(),
+          updatedAt: c.updatedAt.toString(),
+          members: c.members.map((m) => ({
+            userId: m.userId,
+            username: m.username,
+            avatar: m.avatar,
+            lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : null,
+          })),
+          lastMessage: c.messages.length
+            ? {
+                ...c.messages[0],
+                createdAt: c.messages[0].createdAt.toString(),
+              }
+            : null,
+        }
+      }),
     } as GetConversationsResponse
   }
 
