@@ -12,7 +12,7 @@ interface ProfilePanelProps {
   onClose: () => void
 }
 
-export function ProfilePanel({ conversationId, onClose }: ProfilePanelProps) {
+export default function ProfilePanel({ conversationId, onClose }: ProfilePanelProps) {
   const conversation = useSelector(
     (state: { conversations: ConversationState }) => {
       return state.conversations?.find((c) => c.id === conversationId)

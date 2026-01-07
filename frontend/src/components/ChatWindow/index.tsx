@@ -36,7 +36,7 @@ interface ChatWindowProps {
   onVoiceCall: () => void
 }
 
-export function ChatWindow({
+export default function ChatWindow({
   conversationId,
   onToggleProfile,
   onVoiceCall,

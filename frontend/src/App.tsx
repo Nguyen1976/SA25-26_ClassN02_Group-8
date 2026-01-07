@@ -1,7 +1,10 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import ProtectedRoute from './components/ProtectedRoute'
-import AuthPage from './pages/Auth'
-import ChatPage from './pages/Chat'
+// import AuthPage from './pages/Auth'
+// import ChatPage from './pages/Chat'
+const AuthPage = lazy(() => import('./pages/Auth'))
+const ChatPage = lazy(() => import('./pages/Chat'))
+
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { socket } from './lib/socket'
 
@@ -9,14 +12,20 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <ProtectedRoute>
-        <ChatPage />
-      </ProtectedRoute>
+      <Suspense fallback={null}>
+        <ProtectedRoute>
+          <ChatPage />
+        </ProtectedRoute>
+      </Suspense>
     ),
   },
   {
     path: '/auth',
-    element: <AuthPage />,
+    element: (
+      <Suspense fallback={null}>
+        <AuthPage />
+      </Suspense>
+    ),
   },
 ])
 

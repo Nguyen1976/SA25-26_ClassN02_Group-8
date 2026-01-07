@@ -3,7 +3,9 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 
 const Register = () => {
-  const handleSubmit = (e: React.FormEvent) => {}
+  const handleSubmit = () => {
+    console.log('Register form submitted')
+  }
   return (
     <form onSubmit={handleSubmit} className='space-y-4'>
       <div className='space-y-2'>

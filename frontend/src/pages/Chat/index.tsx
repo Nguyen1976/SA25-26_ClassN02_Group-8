@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { ChatSidebar } from '@/components/ChatSidebar'
-import { ChatWindow } from '@/components/ChatWindow'
-import { ProfilePanel } from '@/components/ProfilePanel'
-import { VoiceCallModal } from '@/components/VoiceCallModal'
+import ChatWindow from '@/components/ChatWindow'
+import ProfilePanel from '@/components/ProfilePanel'
+import VoiceCallModal from '@/components/VoiceCallModal'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 export default function ChatPage() {
@@ -10,7 +10,7 @@ export default function ChatPage() {
   const [showVoiceCall, setShowVoiceCall] = useState(false)
 
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
-  
+
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
       <div className='flex h-screen bg-bg-box-chat text-text overflow-hidden'>

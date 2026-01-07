@@ -12,7 +12,7 @@ interface VoiceCallModalProps {
   onClose: () => void
 }
 
-export function VoiceCallModal({
+export default function VoiceCallModal({
   conversationId,
   onClose,
 }: VoiceCallModalProps) {

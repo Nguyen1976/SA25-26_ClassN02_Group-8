@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { AnimatedBackground } from '@/components/AnimatedBg'
+import AnimatedBackground from '@/components/AnimatedBg'
+// const AnimatedBackground = lazy(() => import('@/components/AnimatedBg'))
 import { AuthForm } from '@/components/AuthForm'
 
 export default function AuthPage() {
@@ -7,7 +8,7 @@ export default function AuthPage() {
 
   return (
     <div className='relative min-h-screen w-full overflow-hidden'>
-      <AnimatedBackground />
+        <AnimatedBackground />
       <div className='relative z-20 flex min-h-screen items-center justify-center p-4'>
         <AuthForm mode={mode} onModeChange={setMode} />
       </div>
