@@ -177,3 +177,23 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: oklch(0.45 0 0);
 }
+
+@keyframes fadeStatus {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+.status-auto-hide {
+  animation: fadeStatus 1.5s ease forwards;
+}

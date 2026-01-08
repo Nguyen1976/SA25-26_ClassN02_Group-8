@@ -24,6 +24,7 @@ export interface Message {
   deleteType?: string
   createdAt?: string
   senderMember?: SenderMember | undefined
+  status?: 'sent' | 'pending'
 }
 
 export interface MessageState {
@@ -57,6 +58,7 @@ export const sendMessage = createAsyncThunk(
   async ({
     conversationId,
     message,
+    tempMessageId,
   }: {
     conversationId: string
     message: string
@@ -66,7 +68,7 @@ export const sendMessage = createAsyncThunk(
       `${API_ROOT}/chat/send_message`,
       { conversationId, message }
     )
-    return response.data.data
+    return { ...response.data.data, tempMessageId }
   }
 )
 
@@ -99,13 +101,31 @@ export const messageSlice = createSlice({
     )
     builder.addCase(
       sendMessage.fulfilled,
-      (state, action: PayloadAction<{ message: Message }>) => {
-        const { message } = action.payload
+      (
+        state,
+        action: PayloadAction<{ message: Message; tempMessageId?: string }>
+      ) => {
+        const { message, tempMessageId } = action.payload
 
         if (!state.messages[message.conversationId]) {
           state.messages[message.conversationId] = []
         }
-        state.messages[message.conversationId].unshift(message)
+        if (tempMessageId) {
+          const index = state.messages[message.conversationId].findIndex(
+            (m) => m.id === tempMessageId
+          )
+          if (index !== -1) {
+            state.messages[message.conversationId][index] = {
+              ...message,
+              status: 'sent',
+            }
+            return
+          }
+        }
+        state.messages[message.conversationId].unshift({
+          ...message,
+          status: 'sent',
+        })
       }
     )
   },

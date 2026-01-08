@@ -7,6 +7,7 @@ import {
   Paperclip,
   Smile,
   Send,
+  CircleChevronDown,
 } from 'lucide-react'
 import {
   readMessage,
@@ -14,7 +15,7 @@ import {
   type ConversationState,
 } from '@/redux/slices/conversationSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppDispatch, RootState } from '@/redux/store'
 import { selectUser } from '@/redux/slices/userSlice'
 import { socket } from '@/lib/socket'
@@ -49,6 +50,10 @@ export default function ChatWindow({
   const [play] = useSound(notificationSound, { volume: 0.5 })
   const [msg, setMsg] = useState<string>('')
 
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const bottomRef = useRef<HTMLDivElement | null>(null)
+  const [isAtBottom, setIsAtBottom] = useState(true)
+
   const dispatch = useDispatch<AppDispatch>()
 
   const conversation = useSelector(
@@ -60,6 +65,14 @@ export default function ChatWindow({
   const messages = useSelector((state: RootState) =>
     selectMessage(state, conversationId)
   )
+
+  useEffect(() => {
+    if (!isAtBottom) return
+
+    bottomRef.current?.scrollIntoView({
+      behavior: 'smooth',
+    })
+  }, [messages.length, isAtBottom])
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -87,7 +100,7 @@ export default function ChatWindow({
     const lastMessage: Message = messages[messages.length - 1]
 
     // Chỉ đánh dấu read nếu message KHÔNG phải của mình
-    if (lastMessage.senderMember?.userId === user.id) return
+    if (lastMessage.senderId === user.id) return
 
     dispatch(
       readMessage({
@@ -99,7 +112,23 @@ export default function ChatWindow({
 
   const handleSendMessage = useCallback(() => {
     if (msg.trim() === '' || !conversationId) return
-    dispatch(sendMessage({ conversationId, message: msg })).then((res) => {
+
+    const tempMessage: Message = {
+      id: 'temp-id-' + Date.now(),
+      conversationId,
+      senderId: user.id,
+      text: msg,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    }
+    dispatch(addMessage(tempMessage))
+    dispatch(
+      sendMessage({
+        conversationId,
+        message: msg,
+        tempMessageId: tempMessage.id,
+      })
+    ).then((res) => {
       dispatch(
         updateNewMessage({
           conversationId,
@@ -108,7 +137,11 @@ export default function ChatWindow({
       )
     })
     setMsg('')
-  }, [msg, dispatch, conversationId])
+
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    })
+  }, [msg, dispatch, conversationId, user.id])
 
   useEffect(() => {
     window.onkeydown = (e) => {
@@ -172,11 +205,35 @@ export default function ChatWindow({
       </div>
 
       {/* Messages */}
-      <div className='flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar'>
-          <MessageComponent messages={messages} />
+      <div
+        className='flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar'
+        ref={containerRef}
+        onScroll={() => {
+          const el = containerRef.current
+          if (!el) return
+
+          const threshold = 120 // px
+          const atBottom =
+            el.scrollHeight - el.scrollTop - el.clientHeight < threshold
+
+          setIsAtBottom(atBottom)
+        }}
+      >
+        <MessageComponent messages={messages} />
+        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
+      {!isAtBottom && (
+        <button
+          onClick={() =>
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+          }
+          className='flex justify-center mx-auto bg-transparent'
+        >
+          <CircleChevronDown className='text-bg-box-message-out animate-bounce w-8 h-8' />
+        </button>
+      )}
       <div className='h-16 bg-black-bland border-t border-bg-box-message-incoming flex items-center gap-3 px-6'>
         <Button
           variant='ghost'

@@ -17,11 +17,9 @@ const MessageComponent = ({ messages }: { messages: Message[] }) => {
 
         const isMine = message.senderId === user.id
 
-        const isSameAsPrev =
-          prevMessage?.senderId === message.senderId
+        const isSameAsPrev = prevMessage?.senderId === message.senderId
 
-        const isSameAsNext =
-          nextMessage?.senderId === message.senderId
+        const isSameAsNext = nextMessage?.senderId === message.senderId
 
         const showAvatar = !isSameAsPrev
 
@@ -75,6 +73,13 @@ const MessageComponent = ({ messages }: { messages: Message[] }) => {
                 )}
               </div>
             </div>
+            {isMine && !isSameAsNext && (
+              <div className='flex justify-end mr-10 status-auto-hide h-3'>
+                <span className='mt-1 text-[11px] text-gray-400'>
+                  {message?.status}
+                </span>
+              </div>
+            )}
           </div>
         )
       })}
