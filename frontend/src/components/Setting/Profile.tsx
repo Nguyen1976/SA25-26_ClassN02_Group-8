@@ -6,9 +6,13 @@ import { useForm } from 'react-hook-form'
 import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form } from '../ui/form'
-import { selectUser, updateProfileAPI } from '@/redux/slices/userSlice'
+import {
+  fetchUserByIdAPI,
+  selectUser,
+  updateProfileAPI,
+} from '@/redux/slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { AppDispatch } from '@/redux/store'
 import { toast } from 'sonner'
 
@@ -23,6 +27,10 @@ const Profile = () => {
   const user = useSelector(selectUser)
 
   const dispatch = useDispatch<AppDispatch>()
+
+  useEffect(() => {
+    dispatch(fetchUserByIdAPI(user.id))
+  }, [user.id, dispatch])
 
   const formProfile = useForm<z.infer<typeof formProfileScheme>>({
     resolver: zodResolver(formProfileScheme),

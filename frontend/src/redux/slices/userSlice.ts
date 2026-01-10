@@ -54,6 +54,16 @@ export const updateProfileAPI = createAsyncThunk(
   }
 )
 
+export const fetchUserByIdAPI = createAsyncThunk(
+  `/user/get-by-id`,
+  async (userId: string) => {
+    const response = await authorizeAxiosInstance.get(
+      `${API_ROOT}/user?userId=${userId}`
+    )
+    return response.data.data
+  }
+)
+
 export const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -74,6 +84,12 @@ export const userSlice = createSlice({
     })
     builder.addCase(
       updateProfileAPI.fulfilled,
+      (state, action: PayloadAction<UserState>) => {
+        Object.assign(state, action.payload)
+      }
+    )
+    builder.addCase(
+      fetchUserByIdAPI.fulfilled,
       (state, action: PayloadAction<UserState>) => {
         Object.assign(state, action.payload)
       }
