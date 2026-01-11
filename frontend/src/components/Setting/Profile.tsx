@@ -38,7 +38,7 @@ const Profile = () => {
       fullName: user.fullName || '',
       email: user.email || '',
       bio: user.bio || '',
-      avatar: undefined,
+      avatar: user.avatar ? undefined : undefined,
     },
   })
 
