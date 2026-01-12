@@ -5,6 +5,11 @@ import { PrismaModule } from '@app/prisma'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { UtilModule } from '@app/util'
 import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
+import {
+  ConversationRepository,
+  MessageRepository,
+  ConversationMemberRepository,
+} from './repositories'
 
 @Module({
   imports: [
@@ -22,6 +27,11 @@ import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
     UtilModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService],
+  providers: [
+    ChatService,
+    ConversationRepository,
+    MessageRepository,
+    ConversationMemberRepository,
+  ],
 })
 export class ChatModule {}
