@@ -1,0 +1,45 @@
+import { PrismaService } from '@app/prisma'
+import { Inject, Injectable } from '@nestjs/common'
+import { Status } from '@prisma/client'
+
+@Injectable()
+export class FriendRequestRepository {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async create(data: { fromUserId: string; toUserId: string }) {
+    return await this.prisma.friendRequest.create({
+      data: {
+        fromUserId: data.fromUserId,
+        toUserId: data.toUserId,
+        status: Status.PENDING,
+      },
+    })
+  }
+
+  async findByUsers(fromUserId: string, toUserId: string) {
+    return await this.prisma.friendRequest.findFirst({
+      where: {
+        fromUserId,
+        toUserId,
+      },
+    })
+  }
+
+  async findById(id: string) {
+    return await this.prisma.friendRequest.findUnique({
+      where: { id },
+    })
+  }
+
+  async updateStatus(fromUserId: string, toUserId: string, status: Status) {
+    return await this.prisma.friendRequest.updateMany({
+      where: {
+        fromUserId,
+        toUserId,
+      },
+      data: {
+        status,
+      },
+    })
+  }
+}

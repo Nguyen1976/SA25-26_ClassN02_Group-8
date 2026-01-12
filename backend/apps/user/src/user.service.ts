@@ -1,4 +1,3 @@
-import { PrismaService } from '@app/prisma'
 import { StorageR2Service } from '@app/storage-r2'
 import { UtilService } from '@app/util/util.service'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
@@ -31,39 +30,31 @@ import {
 } from 'libs/constant/rmq/payload'
 import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
 import { lookup } from 'mime-types'
+import { UserRepository, FriendRequestRepository } from './repositories'
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('USER_REDIS') private readonly redis: RedisClient,
-    @Inject(PrismaService) private readonly prisma: PrismaService,
+    private readonly userRepo: UserRepository,
+    private readonly friendRequestRepo: FriendRequestRepository,
     @Inject(JwtService) private readonly jwtService: JwtService,
     @Inject(UtilService) private readonly utilService: UtilService,
-    // @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
     private readonly amqpConnection: AmqpConnection,
     @Inject(StorageR2Service)
     private readonly storageR2Service: StorageR2Service,
   ) {}
 
   async register(data: UserRegisterRequest): Promise<UserRegisterResponse> {
-    //check email exist
-    //check username exist
-    const existingUser = await this.prisma.user.findUnique({
-      where: {
-        email: data.email,
-      },
-    })
+    const existingUser = await this.userRepo.findByEmail(data.email)
     if (existingUser) {
       throw new RpcException({
         code: status.ALREADY_EXISTS,
         message: 'Email already exists',
       })
     }
-    const existingUsername = await this.prisma.user.findUnique({
-      where: {
-        username: data.username,
-      },
-    })
+
+    const existingUsername = await this.userRepo.findByUsername(data.username)
     if (existingUsername) {
       throw new RpcException({
         code: status.ALREADY_EXISTS,
@@ -71,22 +62,20 @@ export class UserService {
       })
     }
 
+    const hashedPassword = await this.utilService.hashPassword(data.password)
     const { createdAt, updatedAt, password, ...res } =
-      await this.prisma.user.create({
-        data: {
-          email: data.email,
-          fullName: '', //bổ sung sau
-          password: await this.utilService.hashPassword(data.password),
-          username: data.username,
-        },
+      await this.userRepo.create({
+        email: data.email,
+        username: data.username,
+        password: hashedPassword,
       })
-    let payload: UserCreatedPayload = {
+
+    const payload: UserCreatedPayload = {
       id: res.id,
       email: res.email,
       username: res.username,
     }
 
-    //test emit event to rabbitmq
     this.amqpConnection.publish(
       EXCHANGE_RMQ.USER_EVENTS,
       ROUTING_RMQ.USER_CREATED,
@@ -96,17 +85,14 @@ export class UserService {
   }
 
   async login(data: UserLoginRequest): Promise<UserLoginResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: data.email,
-      },
-    })
+    const user = await this.userRepo.findByEmail(data.email)
     if (!user) {
       throw new RpcException({
         code: status.NOT_FOUND,
         message: 'User not found',
       })
     }
+
     const token = this.jwtService.sign({
       userId: user.id,
       email: user.email,
@@ -122,18 +108,7 @@ export class UserService {
   }
 
   async getUserById(userId: string): Promise<GetUserByIdResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        fullName: true,
-        username: true,
-        email: true,
-        bio: true,
-        avatar: true,
-      },
-    })
+    const user = await this.userRepo.findByIdWithSelect(userId)
     if (!user) {
       throw new RpcException({
         code: status.NOT_FOUND,
@@ -144,12 +119,7 @@ export class UserService {
   }
 
   async makeFriend(data: MakeFriendRequest): Promise<MakeFriendResponse> {
-    //chekc email ton tai
-    const friend = await this.prisma.user.findUnique({
-      where: {
-        email: data.inviteeEmail,
-      },
-    })
+    const friend = await this.userRepo.findByEmail(data.inviteeEmail)
     if (!friend) {
       throw new RpcException({
         code: status.NOT_FOUND,
@@ -157,19 +127,15 @@ export class UserService {
       })
     }
 
-    //tạo bản ghi friend request
-    const friendRequest = await this.prisma.friendRequest.create({
-      data: {
-        fromUserId: data.inviterId,
-        toUserId: friend.id,
-        status: Status.PENDING,
-      },
+    const friendRequest = await this.friendRequestRepo.create({
+      fromUserId: data.inviterId,
+      toUserId: friend.id,
     })
+
     const payload: UserMakeFriendPayload = {
       friendRequestId: friendRequest.id,
       inviterId: data.inviterId,
       inviterName: data.inviterName,
-
       inviteeEmail: data.inviteeEmail,
       inviteeName: friend.username,
       inviteeId: friend.id,
@@ -189,12 +155,11 @@ export class UserService {
   async updateStatusMakeFriend(
     data: UpdateStatusRequest,
   ): Promise<UpdateStatusResponse> {
-    const friendRequest = await this.prisma.friendRequest.findFirst({
-      where: {
-        fromUserId: data.inviterId,
-        toUserId: data.inviteeId,
-      },
-    })
+    const friendRequest = await this.friendRequestRepo.findByUsers(
+      data.inviterId,
+      data.inviteeId,
+    )
+
     if (!friendRequest) {
       throw new RpcException({
         code: status.NOT_FOUND,
@@ -208,46 +173,29 @@ export class UserService {
         message: 'Friend request already responded',
       })
     }
-    //update status dựa theo status
-    await this.prisma.friendRequest.updateMany({
-      where: {
-        fromUserId: data.inviterId,
-        toUserId: data.inviteeId,
-      },
-      data: {
-        status: data.status as Status,
-      },
-    })
+
+    await this.friendRequestRepo.updateStatus(
+      data.inviterId,
+      data.inviteeId,
+      data.status as Status,
+    )
 
     let inviterUpdate
     let inviteeUpdate
-    //nếu chấp nhận thì update friend ở cả 2 user
+
     if (data.status === Status.ACCEPTED) {
-      //update mảng friends trong user của cả 2
-      inviterUpdate = await this.prisma.user.update({
-        where: {
-          id: data.inviterId,
-        },
-        data: {
-          friends: {
-            push: data.inviteeId,
-          },
-        },
-      })
-      inviteeUpdate = await this.prisma.user.update({
-        where: {
-          id: data.inviteeId,
-        },
-        data: {
-          friends: {
-            push: data.inviterId,
-          },
-        },
-      })
+      inviterUpdate = await this.userRepo.updateFriends(
+        data.inviterId,
+        data.inviteeId,
+      )
+      inviteeUpdate = await this.userRepo.updateFriends(
+        data.inviteeId,
+        data.inviterId,
+      )
     }
 
     const payload: UserUpdateStatusMakeFriendPayload = {
-      inviterId: data.inviterId, //ngươi nhận thông báo
+      inviterId: data.inviterId,
       inviteeId: data.inviteeId,
       inviteeName: data.inviteeName,
       status: data.status,
@@ -273,65 +221,36 @@ export class UserService {
       payload,
     )
 
-    //thằng conversation cũng sẽ nhận và create conservation
-
     return { status: 'SUCCESS' }
   }
 
   async listFriends(userId: string): Promise<ListFriendsResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    })
+    const user = await this.userRepo.findById(userId)
     if (!user) {
       throw new RpcException({
         code: status.NOT_FOUND,
         message: 'User not found',
       })
     }
-    const friends = await this.prisma.user.findMany({
-      where: {
-        id: { in: user.friends || [] },
-      },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        avatar: true,
-        fullName: true,
-      },
-    })
+
+    const friends = await this.userRepo.findManyByIds(user.friends || [])
     return { friends } as ListFriendsResponse
   }
 
   async detailMakeFriend(
     friendRequestId: string,
   ): Promise<DetailMakeFriendResponse> {
-    const friendRequest = await this.prisma.friendRequest.findUnique({
-      where: {
-        id: friendRequestId,
-      },
-    })
+    const friendRequest = await this.friendRequestRepo.findById(friendRequestId)
     if (!friendRequest) {
       throw new RpcException({
         code: status.NOT_FOUND,
         message: 'Friend request not found',
       })
     }
-    //get user details
-    const fromUser = await this.prisma.user.findUnique({
-      where: {
-        id: friendRequest.fromUserId,
-      },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        fullName: true,
-        avatar: true,
-      },
-    })
+
+    const fromUser = await this.userRepo.findByIdWithSelect(
+      friendRequest.fromUserId,
+    )
 
     return {
       ...friendRequest,
@@ -355,15 +274,10 @@ export class UserService {
       })
     }
 
-    const user = await this.prisma.user.update({
-      where: {
-        id: data.userId,
-      },
-      data: {
-        fullName: data?.fullName,
-        bio: data?.bio,
-        avatar: avatarUrl || undefined,
-      },
+    const user = await this.userRepo.updateProfile(data.userId, {
+      fullName: data.fullName,
+      bio: data.bio,
+      avatar: avatarUrl,
     })
 
     const payload: UserUpdatedPayload = {
@@ -381,7 +295,6 @@ export class UserService {
     return {
       fullName: user.fullName || '',
       bio: user.bio || '',
-      //nếu có cập nhật avatar thì trả về avatar mới
       ...(avatarUrl ? { avatar: avatarUrl } : {}),
     }
   }
