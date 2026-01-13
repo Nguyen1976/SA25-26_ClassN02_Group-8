@@ -21,6 +21,7 @@ import {
   type DetailMakeFriendResponse,
 } from 'interfaces/user.grpc'
 import { UserMapper } from './domain/user.mapper'
+import { safeExecute } from '@app/common/rpc/safe-execute'
 
 @Controller()
 export class UserController implements UserGrpcServiceController {
@@ -31,7 +32,7 @@ export class UserController implements UserGrpcServiceController {
     data: UserRegisterRequest,
     metadata: Metadata,
   ): Promise<UserRegisterResponse> {
-    const user = await this.userService.register(data)
+    const user = await safeExecute(() => this.userService.register(data))
     return UserMapper.toRegisterResponse(user)
   }
 
@@ -40,7 +41,7 @@ export class UserController implements UserGrpcServiceController {
     data: UserLoginRequest,
     metadata: Metadata,
   ): Promise<UserLoginResponse> {
-    const session = await this.userService.login(data)
+    const session = await safeExecute(() => this.userService.login(data))
     return UserMapper.toLoginResponse(session)
   }
 
@@ -49,7 +50,9 @@ export class UserController implements UserGrpcServiceController {
     data: MakeFriendRequest,
     metadata: Metadata,
   ): Promise<MakeFriendResponse> {
-    const friendship = await this.userService.makeFriend(data)
+    const friendship = await safeExecute(() =>
+      this.userService.makeFriend(data),
+    )
     return UserMapper.toMakeFriendResponse(friendship)
   }
 
@@ -58,7 +61,9 @@ export class UserController implements UserGrpcServiceController {
     data: UpdateStatusRequest,
     metadata: Metadata,
   ): Promise<UpdateStatusResponse> {
-    const friendship = await this.userService.updateStatusMakeFriend(data)
+    const friendship = await safeExecute(() =>
+      this.userService.updateStatusMakeFriend(data),
+    )
     return UserMapper.toUpdateStatusResponse(friendship)
   }
 
@@ -67,7 +72,9 @@ export class UserController implements UserGrpcServiceController {
     data: ListFriendsRequest,
     metadata: Metadata,
   ): Promise<any> {
-    const friends = await this.userService.listFriends(data.userId)
+    const friends = await safeExecute(() =>
+      this.userService.listFriends(data.userId),
+    )
     return UserMapper.toListFriendsResponse(friends)
   }
 
@@ -76,8 +83,8 @@ export class UserController implements UserGrpcServiceController {
     data: { friendRequestId: string },
     metadata: Metadata,
   ): Promise<DetailMakeFriendResponse> {
-    const friendRequest = await this.userService.detailMakeFriend(
-      data.friendRequestId,
+    const friendRequest = await safeExecute(() =>
+      this.userService.detailMakeFriend(data.friendRequestId),
     )
     return UserMapper.toDetailMakeFriendResponse(friendRequest)
   }
@@ -87,7 +94,9 @@ export class UserController implements UserGrpcServiceController {
     data: UpdateProfileRequest,
     metadata: Metadata,
   ): Promise<UpdateProfileResponse> {
-    const profile = await this.userService.updateProfile(data)
+    const profile = await safeExecute(() =>
+      this.userService.updateProfile(data),
+    )
     return UserMapper.toUpdateProfileResponse(profile)
   }
 
@@ -96,7 +105,9 @@ export class UserController implements UserGrpcServiceController {
     data: GetUserByIdRequest,
     metadata: Metadata,
   ): Promise<GetUserByIdResponse> {
-    const user = await this.userService.getUserById(data.userId)
+    const user = await safeExecute(() =>
+      this.userService.getUserById(data.userId),
+    )
     return UserMapper.toGetUserByIdResponse(user)
   }
 }

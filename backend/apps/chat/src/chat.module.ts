@@ -10,6 +10,7 @@ import {
   MessageRepository,
   ConversationMemberRepository,
 } from './repositories'
+import { ChatEventsPublisher } from './publishers/chat-events.publisher'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import {
     ConversationRepository,
     MessageRepository,
     ConversationMemberRepository,
+    ChatEventsPublisher,
   ],
 })
 export class ChatModule {}

@@ -84,11 +84,7 @@ export class UserService {
 
     return {
       userId: user.id,
-      email: user.email,
-      username: user.username,
-      fullName: user.fullName,
-      avatar: user.avatar,
-      bio: user.bio,
+      ...user,
       token,
     }
   }
@@ -121,14 +117,7 @@ export class UserService {
       inviteeId: friend.id,
     })
 
-    return {
-      id: friendRequest.id,
-      fromUserId: friendRequest.fromUserId,
-      toUserId: friendRequest.toUserId,
-      status: friendRequest.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
-      createdAt: friendRequest.createdAt,
-      updatedAt: friendRequest.updatedAt,
-    }
+    return friendRequest
   }
 
   async updateStatusMakeFriend(data: UpdateStatusRequest): Promise<Friendship> {
@@ -160,14 +149,8 @@ export class UserService {
     let inviteeUpdate
 
     if (data.status === Status.ACCEPTED) {
-      await this.userRepo.updateFriends(
-        data.inviterId,
-        data.inviteeId,
-      )
-      await this.userRepo.updateFriends(
-        data.inviteeId,
-        data.inviterId,
-      )
+      await this.userRepo.updateFriends(data.inviterId, data.inviteeId)
+      await this.userRepo.updateFriends(data.inviteeId, data.inviterId)
       inviterUpdate = await this.userRepo.findById(data.inviterId)
       inviteeUpdate = await this.userRepo.findById(data.inviteeId)
     }
@@ -193,14 +176,7 @@ export class UserService {
       ],
     })
 
-    return {
-      id: updatedRequest!.id,
-      fromUserId: updatedRequest!.fromUserId,
-      toUserId: updatedRequest!.toUserId,
-      status: updatedRequest!.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
-      createdAt: updatedRequest!.createdAt,
-      updatedAt: updatedRequest!.updatedAt,
-    }
+    return updatedRequest as Friendship
   }
 
   async listFriends(userId: string): Promise<UserEntity[]> {
@@ -226,12 +202,7 @@ export class UserService {
     )
 
     return {
-      id: friendRequest.id,
-      fromUserId: friendRequest.fromUserId,
-      toUserId: friendRequest.toUserId,
-      status: friendRequest.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
-      createdAt: friendRequest.createdAt,
-      updatedAt: friendRequest.updatedAt,
+      ...friendRequest,
       fromUser: fromUser as any,
     }
   }

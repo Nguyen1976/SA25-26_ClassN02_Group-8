@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common'
+import { Catch, Controller } from '@nestjs/common'
 import { ChatService } from './chat.service'
 import { GrpcMethod, RpcException } from '@nestjs/microservices'
 import {
@@ -23,6 +23,8 @@ import type {
   UserUpdatedPayload,
   UserUpdateStatusMakeFriendPayload,
 } from 'libs/constant/rmq/payload'
+import { ConversationMapper } from './domain/conversation.mapper'
+import { safeExecute } from '@app/common/rpc/safe-execute'
 
 @Controller()
 export class ChatController {
@@ -33,8 +35,10 @@ export class ChatController {
     data: CreateConversationRequest,
     metadata: Metadata,
   ): Promise<CreateConversationResponse> {
-    const res = await this.chatService.createConversation(data)
-    return res
+    const res = await safeExecute(() =>
+      this.chatService.createConversation(data),
+    )
+    return ConversationMapper.toCreateConversationResponse(res)
   }
 
   @GrpcMethod(CHAT_GRPC_SERVICE_NAME, 'addMemberToConversation')
@@ -42,15 +46,10 @@ export class ChatController {
     data: AddMemberToConversationRequest,
     metadata: Metadata,
   ): Promise<any> {
-    try {
-      const res = await this.chatService.addMemberToConversation(data)
-      return res
-    } catch (error) {
-      throw new RpcException({
-        code: status.INTERNAL,
-        message: error.message || 'Internal server error',
-      })
-    }
+    const res = await safeExecute(() =>
+      this.chatService.addMemberToConversation(data),
+    )
+    return res
   }
 
   @GrpcMethod(CHAT_GRPC_SERVICE_NAME, 'getConversations')
@@ -58,8 +57,13 @@ export class ChatController {
     data: GetConversationsRequest,
     metadata: Metadata,
   ): Promise<GetConversationsResponse> {
-    const res = await this.chatService.getConversations(data.userId, data)
-    return res
+    const res = await safeExecute(() =>
+      this.chatService.getConversations(data.userId, data),
+    )
+    return ConversationMapper.toGetConversationsResponse(
+      res.conversations,
+      res.unreadMap,
+    )
   }
 
   @GrpcMethod(CHAT_GRPC_SERVICE_NAME, 'getMessagesByConversationId')
@@ -67,10 +71,12 @@ export class ChatController {
     data: GetMessagesRequest,
     metadata: Metadata,
   ): Promise<any> {
-    const res = await this.chatService.getMessagesByConversationId(
-      data.conversationId,
-      data.userId,
-      { limit: data.limit, page: data.page },
+    const res = await safeExecute(() =>
+      this.chatService.getMessagesByConversationId(
+        data.conversationId,
+        data.userId,
+        { limit: data.limit, page: data.page },
+      ),
     )
     return res
   }
@@ -80,7 +86,7 @@ export class ChatController {
     data: SendMessageRequest,
     metadata: Metadata,
   ): Promise<SendMessageResponse> {
-    const message = await this.chatService.sendMessage(data)
+    const message = await safeExecute(() => this.chatService.sendMessage(data))
     return message
   }
 
@@ -89,7 +95,7 @@ export class ChatController {
     data: ReadMessageRequest,
     metadata: Metadata,
   ): Promise<ReadMessageResponse> {
-    const res = await this.chatService.readMessage(data)
+    const res = await safeExecute(() => this.chatService.readMessage(data))
     return res
   }
 
@@ -101,7 +107,9 @@ export class ChatController {
   async createConversationWhenAcceptFriend(
     data: UserUpdateStatusMakeFriendPayload,
   ) {
-    await this.chatService.createConversationWhenAcceptFriend(data)
+    await safeExecute(() =>
+      this.chatService.createConversationWhenAcceptFriend(data),
+    )
   }
 
   @RabbitSubscribe({
@@ -110,6 +118,6 @@ export class ChatController {
     queue: QUEUE_RMQ.CHAT_USER_UPDATED,
   })
   async handleUserUpdated(data: UserUpdatedPayload) {
-    await this.chatService.handleUserUpdated(data)
+    await safeExecute(() => this.chatService.handleUserUpdated(data))
   }
 }

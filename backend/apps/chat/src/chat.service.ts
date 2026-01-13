@@ -1,33 +1,27 @@
 import { UtilService } from '@app/util'
-import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
-import { status } from '@grpc/grpc-js'
 import { Inject, Injectable } from '@nestjs/common'
-import { RpcException } from '@nestjs/microservices'
 import { conversationType, Status } from '@prisma/client'
 import {
   AddMemberToConversationRequest,
   type AddMemberToConversationResponse,
   CreateConversationRequest,
-  type CreateConversationResponse,
-  type GetConversationsResponse,
   GetMessagesResponse,
   ReadMessageRequest,
   ReadMessageResponse,
   SendMessageRequest,
   SendMessageResponse,
 } from 'interfaces/chat.grpc'
-import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 import type {
-  MemberAddedToConversationPayload,
   UserUpdatedPayload,
   UserUpdateStatusMakeFriendPayload,
 } from 'libs/constant/rmq/payload'
-import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
 import {
   ConversationRepository,
   MessageRepository,
   ConversationMemberRepository,
 } from './repositories'
+import { ChatErrors } from './errors/chat.errors'
+import { ChatEventsPublisher } from './publishers/chat-events.publisher'
 
 @Injectable()
 export class ChatService {
@@ -37,7 +31,7 @@ export class ChatService {
     private readonly memberRepo: ConversationMemberRepository,
     @Inject(UtilService)
     private readonly utilService: UtilService,
-    private readonly amqpConnection: AmqpConnection,
+    private readonly eventsPublisher: ChatEventsPublisher,
   ) {}
 
   async createConversationWhenAcceptFriend(
@@ -50,16 +44,12 @@ export class ChatService {
       createrId: data.inviterId,
     })
 
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.CHAT_EVENTS,
-      ROUTING_RMQ.CONVERSATION_CREATED,
-      conversation,
-    )
+    this.eventsPublisher.publishConversationCreated(conversation)
   }
 
   async createConversation(
     data: CreateConversationRequest,
-  ): Promise<CreateConversationResponse> {
+  ) {
     const conversation = await this.conversationRepo.create({
       type: data.type as conversationType,
       groupName: data.groupName,
@@ -75,7 +65,7 @@ export class ChatService {
 
     const res = await this.conversationRepo.findByIdWithMembers(conversation.id)
 
-    return this.formatConversationResponse(res)
+    return res
   }
 
   async sendMessage(data: SendMessageRequest): Promise<SendMessageResponse> {
@@ -85,10 +75,7 @@ export class ChatService {
     const memberIds = conversationMembers.map((cm) => cm.userId)
 
     if (!memberIds.includes(data.senderId)) {
-      throw new RpcException({
-        code: status.FAILED_PRECONDITION,
-        message: 'Sender is not a member of the conversation',
-      })
+      ChatErrors.senderNotMember()
     }
 
     const message = await this.messageRepo.create({
@@ -100,14 +87,7 @@ export class ChatService {
 
     await this.conversationRepo.updateUpdatedAt(data.conversationId)
 
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.CHAT_EVENTS,
-      ROUTING_RMQ.MESSAGE_SENT,
-      {
-        ...message,
-        memberIds,
-      },
-    )
+    this.eventsPublisher.publishMessageSent(message, memberIds as string[])
 
     return {
       message: {
@@ -125,10 +105,7 @@ export class ChatService {
     )
 
     if (!conversation) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'Conversation not found',
-      })
+      ChatErrors.conversationNotFound()
     }
 
     const existingMembers =
@@ -150,26 +127,17 @@ export class ChatService {
 
     await this.memberRepo.addMembers(dto.conversationId, newMemberIds)
 
-    const payload: MemberAddedToConversationPayload = {
+    this.eventsPublisher.publishMemberAddedToConversation({
       conversationId: dto.conversationId,
       newMemberIds,
-    }
-
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.CHAT_EVENTS,
-      ROUTING_RMQ.MEMBER_ADDED_TO_CONVERSATION,
-      payload,
-    )
+    })
 
     return {
       status: 'SUCCESS',
     }
   }
 
-  async getConversations(
-    userId: string,
-    params: any,
-  ): Promise<GetConversationsResponse> {
+  async getConversations(userId: string, params: any) {
     const take = Number(params.limit) || 20
     const page = Number(params.page) || 1
     const skip = (page - 1) * take
@@ -183,29 +151,9 @@ export class ChatService {
     const unreadMap = await this.calculateUnreadCounts(conversations, userId)
 
     return {
-      conversations: conversations.map((c) => ({
-        id: c.id,
-        type: c.type,
-        groupName: c.groupName,
-        groupAvatar: c.groupAvatar,
-        unreadCount: unreadMap.get(c.id) ?? '0',
-        createdAt: c.createdAt.toString(),
-        updatedAt: c.updatedAt.toString(),
-        members: c.members.map((m) => ({
-          userId: m.userId,
-          username: m.username,
-          avatar: m.avatar,
-          fullName: m.fullName,
-          lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : null,
-        })),
-        lastMessage: c.messages.length
-          ? {
-              ...c.messages[0],
-              createdAt: c.messages[0].createdAt.toString(),
-            }
-          : null,
-      })),
-    } as GetConversationsResponse
+      conversations,
+      unreadMap,
+    }
   }
 
   async getMessagesByConversationId(
@@ -219,10 +167,7 @@ export class ChatService {
     )
 
     if (!isMember) {
-      throw new RpcException({
-        code: status.FAILED_PRECONDITION,
-        message: 'User is not a member of the conversation',
-      })
+      ChatErrors.userNotMember()
     }
 
     const take = params.limit || 20
@@ -250,10 +195,7 @@ export class ChatService {
     )
 
     if (!message) {
-      throw new RpcException({
-        code: status.FAILED_PRECONDITION,
-        message: 'lastReadMessageId does not belong to the conversation',
-      })
+      ChatErrors.invalidLastReadMessage()
     }
 
     await this.memberRepo.updateLastRead(
@@ -270,30 +212,6 @@ export class ChatService {
       avatar: data.avatar,
       fullName: data.fullName,
     })
-  }
-
-  // Private helper methods
-  private formatConversationResponse(res: any): CreateConversationResponse {
-    return {
-      conversation: {
-        id: res?.id,
-        unreadCount: '0',
-        type: res?.type,
-        groupName: res?.groupName,
-        groupAvatar: res?.groupAvatar,
-        createdAt: res?.createdAt.toString(),
-        updatedAt: res?.updatedAt.toString(),
-        members: res?.members.map((m: any) => ({
-          ...m,
-          lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : '',
-        })),
-        messages:
-          res?.messages?.map((msg: any) => ({
-            ...msg,
-            createdAt: msg.createdAt.toString(),
-          })) || [],
-      },
-    } as CreateConversationResponse
   }
 
   private async calculateUnreadCounts(
