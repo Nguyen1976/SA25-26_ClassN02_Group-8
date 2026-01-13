@@ -16,7 +16,11 @@ import {
   type UpdateProfileResponse,
   type GetUserByIdResponse,
   type GetUserByIdRequest,
+  type UserLoginRequest,
+  type UserLoginResponse,
+  type DetailMakeFriendResponse,
 } from 'interfaces/user.grpc'
+import { UserMapper } from './domain/user.mapper'
 
 @Controller()
 export class UserController implements UserGrpcServiceController {
@@ -27,14 +31,17 @@ export class UserController implements UserGrpcServiceController {
     data: UserRegisterRequest,
     metadata: Metadata,
   ): Promise<UserRegisterResponse> {
-    const res = await this.userService.register(data)
-    return res
+    const user = await this.userService.register(data)
+    return UserMapper.toRegisterResponse(user)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'login')
-  async login(data: any, metadata: Metadata): Promise<any> {
-    const res = await this.userService.login(data)
-    return res
+  async login(
+    data: UserLoginRequest,
+    metadata: Metadata,
+  ): Promise<UserLoginResponse> {
+    const session = await this.userService.login(data)
+    return UserMapper.toLoginResponse(session)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'makeFriend')
@@ -42,8 +49,8 @@ export class UserController implements UserGrpcServiceController {
     data: MakeFriendRequest,
     metadata: Metadata,
   ): Promise<MakeFriendResponse> {
-    const res = await this.userService.makeFriend(data)
-    return res
+    const friendship = await this.userService.makeFriend(data)
+    return UserMapper.toMakeFriendResponse(friendship)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'updateStatusMakeFriend')
@@ -51,8 +58,8 @@ export class UserController implements UserGrpcServiceController {
     data: UpdateStatusRequest,
     metadata: Metadata,
   ): Promise<UpdateStatusResponse> {
-    const res = await this.userService.updateStatusMakeFriend(data)
-    return res
+    const friendship = await this.userService.updateStatusMakeFriend(data)
+    return UserMapper.toUpdateStatusResponse(friendship)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'listFriends')
@@ -60,17 +67,19 @@ export class UserController implements UserGrpcServiceController {
     data: ListFriendsRequest,
     metadata: Metadata,
   ): Promise<any> {
-    const res = await this.userService.listFriends(data.userId)
-    return res
+    const friends = await this.userService.listFriends(data.userId)
+    return UserMapper.toListFriendsResponse(friends)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'detailMakeFriend')
   async detailMakeFriend(
     data: { friendRequestId: string },
     metadata: Metadata,
-  ): Promise<any> {
-    const res = await this.userService.detailMakeFriend(data.friendRequestId)
-    return res
+  ): Promise<DetailMakeFriendResponse> {
+    const friendRequest = await this.userService.detailMakeFriend(
+      data.friendRequestId,
+    )
+    return UserMapper.toDetailMakeFriendResponse(friendRequest)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'updateProfile')
@@ -78,8 +87,8 @@ export class UserController implements UserGrpcServiceController {
     data: UpdateProfileRequest,
     metadata: Metadata,
   ): Promise<UpdateProfileResponse> {
-    const res = await this.userService.updateProfile(data)
-    return res
+    const profile = await this.userService.updateProfile(data)
+    return UserMapper.toUpdateProfileResponse(profile)
   }
 
   @GrpcMethod(USER_GRPC_SERVICE_NAME, 'getUserById')
@@ -87,7 +96,7 @@ export class UserController implements UserGrpcServiceController {
     data: GetUserByIdRequest,
     metadata: Metadata,
   ): Promise<GetUserByIdResponse> {
-    const res = await this.userService.getUserById(data.userId)
-    return res
+    const user = await this.userService.getUserById(data.userId)
+    return UserMapper.toGetUserByIdResponse(user)
   }
 }

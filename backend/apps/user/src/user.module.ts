@@ -11,6 +11,7 @@ import { StorageR2Module } from '@app/storage-r2'
 import { ConfigModule } from '@nestjs/config'
 import { r2Config } from './storage-r2.config'
 import { UserRepository, FriendRequestRepository } from './repositories'
+import { UserEventsPublisher } from './publishers/user-events.publisher'
 
 @Module({
   imports: [
@@ -50,6 +51,11 @@ import { UserRepository, FriendRequestRepository } from './repositories'
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, UserRepository, FriendRequestRepository],
+  providers: [
+    UserService,
+    UserRepository,
+    FriendRequestRepository,
+    UserEventsPublisher,
+  ],
 })
 export class UserModule {}

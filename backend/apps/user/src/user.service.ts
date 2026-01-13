@@ -1,36 +1,27 @@
 import { StorageR2Service } from '@app/storage-r2'
 import { UtilService } from '@app/util/util.service'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { status } from '@grpc/grpc-js'
 import { Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { RpcException } from '@nestjs/microservices'
 import { Status } from '@prisma/client'
-import {
-  DetailMakeFriendResponse,
-  GetUserByIdResponse,
-  ListFriendsResponse,
-  MakeFriendRequest,
-  MakeFriendResponse,
-  UpdateProfileRequest,
-  UpdateStatusRequest,
-  UpdateStatusResponse,
-  UserLoginRequest,
-  UserLoginResponse,
-  UserRegisterRequest,
-  UserRegisterResponse,
-} from 'interfaces/user.grpc'
 import { Redis as RedisClient } from 'ioredis'
-import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
-import {
-  UserCreatedPayload,
-  UserMakeFriendPayload,
-  UserUpdatedPayload,
-  UserUpdateStatusMakeFriendPayload,
-} from 'libs/constant/rmq/payload'
-import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
 import { lookup } from 'mime-types'
 import { UserRepository, FriendRequestRepository } from './repositories'
+import { UserErrors } from './errors/user.errors'
+import { UserEventsPublisher } from './publishers/user-events.publisher'
+import {
+  AuthSession,
+  UserEntity,
+  Friendship,
+  FriendRequestDetail,
+  UserProfile,
+} from './domain/user.domain'
+import type {
+  UserRegisterRequest,
+  UserLoginRequest,
+  MakeFriendRequest,
+  UpdateStatusRequest,
+  UpdateProfileRequest,
+} from 'interfaces/user.grpc'
 
 @Injectable()
 export class UserService {
@@ -40,57 +31,49 @@ export class UserService {
     private readonly friendRequestRepo: FriendRequestRepository,
     @Inject(JwtService) private readonly jwtService: JwtService,
     @Inject(UtilService) private readonly utilService: UtilService,
-    private readonly amqpConnection: AmqpConnection,
+    private readonly eventsPublisher: UserEventsPublisher,
     @Inject(StorageR2Service)
     private readonly storageR2Service: StorageR2Service,
   ) {}
 
-  async register(data: UserRegisterRequest): Promise<UserRegisterResponse> {
+  async register(data: UserRegisterRequest): Promise<UserEntity> {
     const existingUser = await this.userRepo.findByEmail(data.email)
     if (existingUser) {
-      throw new RpcException({
-        code: status.ALREADY_EXISTS,
-        message: 'Email already exists',
-      })
+      UserErrors.emailAlreadyExists()
     }
 
     const existingUsername = await this.userRepo.findByUsername(data.username)
     if (existingUsername) {
-      throw new RpcException({
-        code: status.ALREADY_EXISTS,
-        message: 'Username already exists',
-      })
+      UserErrors.usernameAlreadyExists()
     }
 
     const hashedPassword = await this.utilService.hashPassword(data.password)
-    const { createdAt, updatedAt, password, ...res } =
+    const { createdAt, updatedAt, password, ...user } =
       await this.userRepo.create({
         email: data.email,
         username: data.username,
         password: hashedPassword,
       })
 
-    const payload: UserCreatedPayload = {
-      id: res.id,
-      email: res.email,
-      username: res.username,
+    const userEntity: UserEntity = {
+      ...user,
+      createdAt,
+      updatedAt,
     }
 
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.USER_EVENTS,
-      ROUTING_RMQ.USER_CREATED,
-      payload,
-    )
-    return res
+    this.eventsPublisher.publishUserCreated({
+      id: userEntity.id,
+      email: userEntity.email,
+      username: userEntity.username,
+    })
+
+    return userEntity
   }
 
-  async login(data: UserLoginRequest): Promise<UserLoginResponse> {
+  async login(data: UserLoginRequest): Promise<AuthSession> {
     const user = await this.userRepo.findByEmail(data.email)
     if (!user) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'User not found',
-      })
+      UserErrors.userNotFound()
     }
 
     const token = this.jwtService.sign({
@@ -100,31 +83,28 @@ export class UserService {
     })
 
     return {
-      ...user,
-      avatar: user.avatar || '',
-      bio: user.bio || '',
+      userId: user.id,
+      email: user.email,
+      username: user.username,
+      fullName: user.fullName,
+      avatar: user.avatar,
+      bio: user.bio,
       token,
-    } as UserLoginResponse
+    }
   }
 
-  async getUserById(userId: string): Promise<GetUserByIdResponse> {
+  async getUserById(userId: string): Promise<UserEntity> {
     const user = await this.userRepo.findByIdWithSelect(userId)
     if (!user) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'User not found',
-      })
+      UserErrors.userNotFound()
     }
-    return user as GetUserByIdResponse
+    return user as UserEntity
   }
 
-  async makeFriend(data: MakeFriendRequest): Promise<MakeFriendResponse> {
+  async makeFriend(data: MakeFriendRequest): Promise<Friendship> {
     const friend = await this.userRepo.findByEmail(data.inviteeEmail)
     if (!friend) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'Friend not found',
-      })
+      UserErrors.friendNotFound()
     }
 
     const friendRequest = await this.friendRequestRepo.create({
@@ -132,46 +112,37 @@ export class UserService {
       toUserId: friend.id,
     })
 
-    const payload: UserMakeFriendPayload = {
+    this.eventsPublisher.publishUserMakeFriend({
       friendRequestId: friendRequest.id,
       inviterId: data.inviterId,
       inviterName: data.inviterName,
       inviteeEmail: data.inviteeEmail,
       inviteeName: friend.username,
       inviteeId: friend.id,
-    }
-
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.USER_EVENTS,
-      ROUTING_RMQ.USER_MAKE_FRIEND,
-      payload,
-    )
+    })
 
     return {
-      status: 'SUCCESS',
-    } as MakeFriendResponse
+      id: friendRequest.id,
+      fromUserId: friendRequest.fromUserId,
+      toUserId: friendRequest.toUserId,
+      status: friendRequest.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
+      createdAt: friendRequest.createdAt,
+      updatedAt: friendRequest.updatedAt,
+    }
   }
 
-  async updateStatusMakeFriend(
-    data: UpdateStatusRequest,
-  ): Promise<UpdateStatusResponse> {
+  async updateStatusMakeFriend(data: UpdateStatusRequest): Promise<Friendship> {
     const friendRequest = await this.friendRequestRepo.findByUsers(
       data.inviterId,
       data.inviteeId,
     )
 
     if (!friendRequest) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'Friend request not found',
-      })
+      UserErrors.friendRequestNotFound()
     }
 
     if (friendRequest.status !== Status.PENDING) {
-      throw new RpcException({
-        code: status.FAILED_PRECONDITION,
-        message: 'Friend request already responded',
-      })
+      UserErrors.friendRequestAlreadyResponded()
     }
 
     await this.friendRequestRepo.updateStatus(
@@ -180,21 +151,28 @@ export class UserService {
       data.status as Status,
     )
 
+    const updatedRequest = await this.friendRequestRepo.findByUsers(
+      data.inviterId,
+      data.inviteeId,
+    )
+
     let inviterUpdate
     let inviteeUpdate
 
     if (data.status === Status.ACCEPTED) {
-      inviterUpdate = await this.userRepo.updateFriends(
+      await this.userRepo.updateFriends(
         data.inviterId,
         data.inviteeId,
       )
-      inviteeUpdate = await this.userRepo.updateFriends(
+      await this.userRepo.updateFriends(
         data.inviteeId,
         data.inviterId,
       )
+      inviterUpdate = await this.userRepo.findById(data.inviterId)
+      inviteeUpdate = await this.userRepo.findById(data.inviteeId)
     }
 
-    const payload: UserUpdateStatusMakeFriendPayload = {
+    this.eventsPublisher.publishUserUpdateStatusMakeFriend({
       inviterId: data.inviterId,
       inviteeId: data.inviteeId,
       inviteeName: data.inviteeName,
@@ -213,39 +191,34 @@ export class UserService {
           fullName: inviteeUpdate?.fullName || '',
         },
       ],
+    })
+
+    return {
+      id: updatedRequest!.id,
+      fromUserId: updatedRequest!.fromUserId,
+      toUserId: updatedRequest!.toUserId,
+      status: updatedRequest!.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
+      createdAt: updatedRequest!.createdAt,
+      updatedAt: updatedRequest!.updatedAt,
     }
-
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.USER_EVENTS,
-      ROUTING_RMQ.USER_UPDATE_STATUS_MAKE_FRIEND,
-      payload,
-    )
-
-    return { status: 'SUCCESS' }
   }
 
-  async listFriends(userId: string): Promise<ListFriendsResponse> {
+  async listFriends(userId: string): Promise<UserEntity[]> {
     const user = await this.userRepo.findById(userId)
     if (!user) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'User not found',
-      })
+      UserErrors.userNotFound()
     }
 
     const friends = await this.userRepo.findManyByIds(user.friends || [])
-    return { friends } as ListFriendsResponse
+    return friends as UserEntity[]
   }
 
   async detailMakeFriend(
     friendRequestId: string,
-  ): Promise<DetailMakeFriendResponse> {
+  ): Promise<FriendRequestDetail> {
     const friendRequest = await this.friendRequestRepo.findById(friendRequestId)
     if (!friendRequest) {
-      throw new RpcException({
-        code: status.NOT_FOUND,
-        message: 'Friend request not found',
-      })
+      UserErrors.friendRequestNotFound()
     }
 
     const fromUser = await this.userRepo.findByIdWithSelect(
@@ -253,14 +226,17 @@ export class UserService {
     )
 
     return {
-      ...friendRequest,
-      fromUser: fromUser,
-      createdAt: friendRequest.createdAt.toString(),
-      updatedAt: friendRequest.updatedAt.toString(),
-    } as DetailMakeFriendResponse
+      id: friendRequest.id,
+      fromUserId: friendRequest.fromUserId,
+      toUserId: friendRequest.toUserId,
+      status: friendRequest.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
+      createdAt: friendRequest.createdAt,
+      updatedAt: friendRequest.updatedAt,
+      fromUser: fromUser as any,
+    }
   }
 
-  async updateProfile(data: UpdateProfileRequest): Promise<any> {
+  async updateProfile(data: UpdateProfileRequest): Promise<UserProfile> {
     let avatarUrl = ''
     if (data.avatar && data.avatarFilename) {
       const mime =
@@ -280,22 +256,16 @@ export class UserService {
       avatar: avatarUrl,
     })
 
-    const payload: UserUpdatedPayload = {
+    this.eventsPublisher.publishUserUpdated({
       userId: user.id,
       fullName: data.fullName || undefined,
       avatar: avatarUrl || undefined,
-    }
-
-    this.amqpConnection.publish(
-      EXCHANGE_RMQ.USER_EVENTS,
-      ROUTING_RMQ.USER_UPDATED,
-      payload,
-    )
+    })
 
     return {
-      fullName: user.fullName || '',
-      bio: user.bio || '',
-      ...(avatarUrl ? { avatar: avatarUrl } : {}),
+      fullName: user.fullName,
+      bio: user.bio,
+      avatar: avatarUrl || user.avatar,
     }
   }
 }

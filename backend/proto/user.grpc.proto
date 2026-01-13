@@ -107,6 +107,7 @@ message FromUser {
   string username = 2;
   string avatar = 3;
   string id = 4;
+  string fullName = 5;
 }
 
 message DetailMakeFriendResponse {

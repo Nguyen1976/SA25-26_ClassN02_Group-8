@@ -101,6 +101,7 @@ export interface FromUser {
   username: string;
   avatar: string;
   id: string;
+  fullName: string;
 }
 
 export interface DetailMakeFriendResponse {
