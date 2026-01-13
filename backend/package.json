@@ -41,15 +41,20 @@
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.3",
+    "chalk": "^4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "ioredis": "^5.8.2",
     "mime-types": "^3.0.2",
+    "nest-winston": "^1.10.2",
     "nodemailer": "^7.0.11",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "uuid": "^13.0.0",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -102,6 +107,7 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/constant(|/.*)$": "<rootDir>/libs/constant/src/$1",
+      "^@app/logger(|/.*)$": "<rootDir>/libs/logger/src/$1",
       "^@app/mailer(|/.*)$": "<rootDir>/libs/mailer/src/$1",
       "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
       "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1",

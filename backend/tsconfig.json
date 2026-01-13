@@ -34,6 +34,12 @@
       "@app/constant/*": [
         "libs/constant/src/*"
       ],
+      "@app/logger": [
+        "libs/logger/src"
+      ],
+      "@app/logger/*": [
+        "libs/logger/src/*"
+      ],
       "@app/mailer": [
         "libs/mailer/src"
       ],

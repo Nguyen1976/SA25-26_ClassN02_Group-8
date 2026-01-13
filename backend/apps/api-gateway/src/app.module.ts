@@ -11,6 +11,8 @@ import { NotificationModule } from './notification/notification.module'
 import { ChatController } from './chat/chat.controller'
 import { ChatModule } from './chat/chat.module'
 import { RealtimeModule } from './realtime/realtime.module'
+import { LoggerModule } from '@app/logger'
+import { CustomRateLimitGuard } from './common/guards/rate-limit.guard'
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { RealtimeModule } from './realtime/realtime.module'
     NotificationModule,
     ChatModule,
     RealtimeModule,
+    LoggerModule.forService('Api-Gateway'),
   ],
   controllers: [AppController, ChatController],
   providers: [
@@ -36,6 +39,10 @@ import { RealtimeModule } from './realtime/realtime.module'
       useClass: AuthGuard,
     },
     RealtimeModule,
+    {
+      provide: APP_GUARD,
+      useClass: CustomRateLimitGuard,
+    }
   ],
   exports: [RealtimeModule, NotificationModule, ChatModule],
 })
