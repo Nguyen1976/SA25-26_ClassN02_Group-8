@@ -5,6 +5,7 @@ import ChatPage from './pages/Chat'
 
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { socket } from './lib/socket'
+import { FriendsPage } from './pages/Friend/FriendPage'
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,14 @@ const router = createBrowserRouter([
   {
     path: '/auth',
     element: <AuthPage />,
+  },
+  {
+    path: '/friend',
+    element: (
+      <ProtectedRoute>
+        <FriendsPage />
+      </ProtectedRoute>
+    ),
   },
 ])
 

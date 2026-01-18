@@ -13,7 +13,7 @@ import type {
 @Injectable()
 export class MessageSubscriber {
   constructor(private readonly chatService: ChatService) {}
-
+  
   @RabbitSubscribe({
     exchange: EXCHANGE_RMQ.USER_EVENTS,
     routingKey: ROUTING_RMQ.USER_UPDATE_STATUS_MAKE_FRIEND,
@@ -21,7 +21,7 @@ export class MessageSubscriber {
   })
   async createConversationWhenAcceptFriend(
     data: UserUpdateStatusMakeFriendPayload,
-  ) {
+  ):Promise<void> {
     await safeExecute(() =>
       this.chatService.createConversationWhenAcceptFriend(data),
     )
@@ -32,7 +32,7 @@ export class MessageSubscriber {
     routingKey: ROUTING_RMQ.USER_UPDATED,
     queue: QUEUE_RMQ.CHAT_USER_UPDATED,
   })
-  async handleUserUpdated(data: UserUpdatedPayload) {
+  async handleUserUpdated(data: UserUpdatedPayload): Promise<void> {
     await safeExecute(() => this.chatService.handleUserUpdated(data))
   }
 }

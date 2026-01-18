@@ -3,7 +3,7 @@ import { ChatSidebar } from '@/components/ChatSidebar'
 import ChatWindow from '@/components/ChatWindow'
 import ProfilePanel from '@/components/ProfilePanel'
 import VoiceCallModal from '@/components/VoiceCallModal'
-import { ThemeProvider } from '@/components/ThemeProvider'
+import MainLayout from '@/layouts/MainLayout'
 
 export default function ChatPage() {
   const [showProfile, setShowProfile] = useState(false)
@@ -12,39 +12,37 @@ export default function ChatPage() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
   return (
-    <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
-      <div className='flex h-screen bg-bg-box-chat text-text overflow-hidden'>
-        <ChatSidebar
-          setSelectedChatId={setSelectedChatId}
-          selectedChatId={selectedChatId}
+    <MainLayout>
+      <ChatSidebar
+        setSelectedChatId={setSelectedChatId}
+        selectedChatId={selectedChatId}
+      />
+
+      {selectedChatId ? (
+        <ChatWindow
+          conversationId={selectedChatId || undefined}
+          onToggleProfile={() => setShowProfile(!showProfile)}
+          onVoiceCall={() => setShowVoiceCall(true)}
         />
+      ) : (
+        <div className='flex-1 flex items-center justify-center bg-bg-box-chat text-gray-500'>
+          Select a chat to start messaging
+        </div>
+      )}
 
-        {selectedChatId ? (
-          <ChatWindow
-            conversationId={selectedChatId || undefined}
-            onToggleProfile={() => setShowProfile(!showProfile)}
-            onVoiceCall={() => setShowVoiceCall(true)}
-          />
-        ) : (
-          <div className='flex-1 flex items-center justify-center bg-bg-box-chat text-gray-500'>
-            Select a chat to start messaging
-          </div>
-        )}
+      {showProfile && selectedChatId && (
+        <ProfilePanel
+          conversationId={selectedChatId}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
 
-        {showProfile && selectedChatId && (
-          <ProfilePanel
-            conversationId={selectedChatId}
-            onClose={() => setShowProfile(false)}
-          />
-        )}
-
-        {showVoiceCall && selectedChatId && (
-          <VoiceCallModal
-            conversationId={selectedChatId}
-            onClose={() => setShowVoiceCall(false)}
-          />
-        )}
-      </div>
-    </ThemeProvider>
+      {showVoiceCall && selectedChatId && (
+        <VoiceCallModal
+          conversationId={selectedChatId}
+          onClose={() => setShowVoiceCall(false)}
+        />
+      )}
+    </MainLayout>
   )
 }

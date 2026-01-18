@@ -1,0 +1,80 @@
+import { Users, MessageSquare, LogOut } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import ProfileSetting from '../ChatSidebar/ProfileSetting'
+import { useLocation, useNavigate } from 'react-router'
+import { useEffect } from 'react'
+
+export function LeftNavigation() {
+  const navigate = useNavigate()
+  const pathname = useLocation().pathname
+  useEffect(() => {
+    console.log(pathname)
+  }, [pathname])
+  return (
+    <div className='w-20 bg-black-bland border-r flex flex-col items-center py-4 gap-4'>
+      {/* User Avatar at top */}
+      <ProfileSetting />
+
+      {/* Navigation Icons */}
+      <div className='flex flex-col gap-4 flex-1'>
+        {/* Chat Tab */}
+        <Button
+          variant='ghost'
+          size='icon'
+          className={cn(
+            'w-12 h-12 rounded-lg transition-colors',
+            pathname === '/' && 'bg-primary text-primary-foreground',
+          )}
+          title='Chats'
+          onClick={() => navigate('/')}
+        >
+          <MessageSquare className='w-6 h-6' />
+        </Button>
+
+        {/* Friends Tab */}
+        <Button
+          variant='ghost'
+          size='icon'
+          className={cn(
+            'w-12 h-12 rounded-lg transition-colors',
+            pathname === '/friend' && 'bg-primary text-primary-foreground',
+          )}
+          title='Friends'
+          onClick={() => navigate('/friend')}
+        >
+          <Users className='w-6 h-6' />
+        </Button>
+
+        {/* Other Navigation Items */}
+        {/* <Button
+          variant='ghost'
+          size='icon'
+          className='w-12 h-12 rounded-lg text-muted-foreground hover:text-foreground transition-colors'
+          title='Notifications'
+        >
+          <Bell className='w-6 h-6' />
+        </Button> */}
+
+        {/* <Button
+          variant='ghost'
+          size='icon'
+          className='w-12 h-12 rounded-lg text-muted-foreground hover:text-foreground transition-colors'
+          title='Settings'
+        >
+          <Settings className='w-6 h-6' />
+        </Button> */}
+      </div>
+
+      {/* Logout at bottom */}
+      <Button
+        variant='ghost'
+        size='icon'
+        className='w-12 h-12 rounded-lg text-muted-foreground hover:text-destructive transition-colors'
+        title='Logout'
+      >
+        <LogOut className='w-6 h-6' />
+      </Button>
+    </div>
+  )
+}

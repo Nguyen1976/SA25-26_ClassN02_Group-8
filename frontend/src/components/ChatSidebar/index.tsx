@@ -19,7 +19,6 @@ import { selectUser } from '@/redux/slices/userSlice'
 import MenuCustome from './Menu'
 import { NotificationsDropdown } from '../NotificationDropdown'
 import type { Message } from '@/redux/slices/messageSlice'
-import ProfileSetting from './ProfileSetting'
 
 interface ChatSidebarProps {
   setSelectedChatId: (chatId: string) => void
@@ -100,8 +99,8 @@ export function ChatSidebar({
 
   return (
     <div className='w-1/3 bg-black-bland border-r border-bg-box-message-incoming flex flex-col custom-scrollbar'>
-      <div className='flex items-center justify-between p-4 border-b border-bg-box-message-incoming'>
-        <ProfileSetting />
+      <div className='flex items-center justify-end p-4 border-b border-bg-box-message-incoming'>
+
         <div className='flex gap-2 items-center'>
           <ModeToggle />
           <NotificationsDropdown />
