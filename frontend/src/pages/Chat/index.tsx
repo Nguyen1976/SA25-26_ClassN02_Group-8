@@ -4,19 +4,16 @@ import ChatWindow from '@/components/ChatWindow'
 import ProfilePanel from '@/components/ProfilePanel'
 import VoiceCallModal from '@/components/VoiceCallModal'
 import MainLayout from '@/layouts/MainLayout'
+import { useParams } from 'react-router'
 
 export default function ChatPage() {
   const [showProfile, setShowProfile] = useState(false)
   const [showVoiceCall, setShowVoiceCall] = useState(false)
 
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
-
+  const selectedChatId = useParams().conversationId || ''
   return (
     <MainLayout>
-      <ChatSidebar
-        setSelectedChatId={setSelectedChatId}
-        selectedChatId={selectedChatId}
-      />
+      <ChatSidebar />
 
       {selectedChatId ? (
         <ChatWindow

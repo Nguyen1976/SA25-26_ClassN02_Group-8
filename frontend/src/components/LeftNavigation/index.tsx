@@ -38,10 +38,10 @@ export function LeftNavigation() {
           size='icon'
           className={cn(
             'w-12 h-12 rounded-lg transition-colors',
-            pathname === '/friend' && 'bg-primary text-primary-foreground',
+            pathname === '/friends' && 'bg-primary text-primary-foreground',
           )}
           title='Friends'
-          onClick={() => navigate('/friend')}
+          onClick={() => navigate('/friends')}
         >
           <Users className='w-6 h-6' />
         </Button>

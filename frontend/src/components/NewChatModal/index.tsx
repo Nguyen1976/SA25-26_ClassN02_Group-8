@@ -46,7 +46,7 @@ export function NewChatModal({ onClose }: NewChatModalProps) {
     dispatch(
       createConversation({
         groupName: data.groupName,
-        members: friendsOnStore.friends
+        members: friendsOnStore
           .filter((friend) => slectedFriends.includes(friend.id))
           .map((friend) => ({
             userId: friend.id,

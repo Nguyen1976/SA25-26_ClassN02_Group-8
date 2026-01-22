@@ -6,8 +6,13 @@ import ChatPage from './pages/Chat'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { socket } from './lib/socket'
 import { FriendsPage } from './pages/Friend/FriendPage'
+import ListFriend from './pages/Friend/ListFriend'
 
 const router = createBrowserRouter([
+  {
+    path: '/auth',
+    element: <AuthPage />,
+  },
   {
     path: '/',
     element: (
@@ -17,11 +22,33 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/auth',
-    element: <AuthPage />,
+    path: '/chat/:conversationId',
+    element: (
+      <ProtectedRoute>
+        <ChatPage />
+      </ProtectedRoute>
+    ),
   },
   {
-    path: '/friend',
+    path: '/friends',
+    element: (
+      <ProtectedRoute>
+        <FriendsPage>
+          <ListFriend />
+        </FriendsPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/groups',
+    element: (
+      <ProtectedRoute>
+        <FriendsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/friend_requests',
     element: (
       <ProtectedRoute>
         <FriendsPage />

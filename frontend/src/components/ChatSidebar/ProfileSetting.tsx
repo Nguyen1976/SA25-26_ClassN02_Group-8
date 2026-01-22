@@ -36,7 +36,6 @@ const ProfileSetting = () => {
             <DropdownMenuItem onClick={() => setShowSetting(true)}>
               Settings
             </DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

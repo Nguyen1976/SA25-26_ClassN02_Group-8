@@ -19,19 +19,16 @@ import { selectUser } from '@/redux/slices/userSlice'
 import MenuCustome from './Menu'
 import { NotificationsDropdown } from '../NotificationDropdown'
 import type { Message } from '@/redux/slices/messageSlice'
+import { useNavigate, useParams } from 'react-router'
 
-interface ChatSidebarProps {
-  setSelectedChatId: (chatId: string) => void
-  selectedChatId: string | null
-}
 
-export function ChatSidebar({
-  setSelectedChatId,
-  selectedChatId,
-}: ChatSidebarProps) {
+
+export function ChatSidebar() {
   const [page, setPage] = useState(1)
 
+  const selectedChatId = useParams().conversationId || ''
   const selectedChatIdRef = useRef<string | null>(null) //fix lỗi về stale closure
+  
 
   useEffect(() => {
     selectedChatIdRef.current = selectedChatId
@@ -41,6 +38,8 @@ export function ChatSidebar({
   const user = useSelector(selectUser)
 
   const dispatch = useDispatch<AppDispatch>()
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (conversations.length === 0) {
@@ -113,7 +112,7 @@ export function ChatSidebar({
           <button
             key={conversation.id}
             onClick={() => {
-              setSelectedChatId(conversation.id)
+              navigate(`/chat/${conversation.id}`)
             }}
             className={cn(
               'w-full p-4 flex items-start gap-3 hover:bg-bg-box-message-incoming/50 transition-colors border-b border-bg-box-message-incoming/30',

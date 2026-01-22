@@ -1,4 +1,4 @@
-import { LeftNavigation } from '@/components/LeftNavigation/LeftNavigation'
+import { LeftNavigation } from '@/components/LeftNavigation'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import React from 'react'
 
