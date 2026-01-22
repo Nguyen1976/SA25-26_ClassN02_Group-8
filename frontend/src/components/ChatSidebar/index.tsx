@@ -4,21 +4,15 @@ import { cn } from '@/lib/utils'
 import { ModeToggle } from '../ModeToggle'
 import type { AppDispatch } from '@/redux/store'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  addConversation,
   getConversations,
   selectConversation,
-  updateNewMessage,
-  upUnreadCount,
   type Conversation,
 } from '@/redux/slices/conversationSlice'
 import { formatDateTime } from '@/utils/formatDateTime'
-import { socket } from '@/lib/socket'
-import { selectUser } from '@/redux/slices/userSlice'
 import MenuCustome from './Menu'
 import { NotificationsDropdown } from '../NotificationDropdown'
-import type { Message } from '@/redux/slices/messageSlice'
 import { useNavigate, useParams } from 'react-router'
 
 
@@ -27,15 +21,8 @@ export function ChatSidebar() {
   const [page, setPage] = useState(1)
 
   const selectedChatId = useParams().conversationId || ''
-  const selectedChatIdRef = useRef<string | null>(null) //fix lỗi về stale closure
-  
-
-  useEffect(() => {
-    selectedChatIdRef.current = selectedChatId
-  }, [selectedChatId])
 
   const conversations = useSelector(selectConversation)
-  const user = useSelector(selectUser)
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -47,48 +34,8 @@ export function ChatSidebar() {
     }
   }, [dispatch, conversations?.length])
 
-  useEffect(() => {
-    const onNewConversation = ({
-      conversation,
-    }: {
-      conversation: Conversation
-    }) => {
-      dispatch(addConversation({ conversation, userId: user.id }))
-    }
 
-    socket.on('chat.new_conversation', onNewConversation)
-
-    return () => {
-      socket.off('chat.new_conversation', onNewConversation)
-    }
-  }, [user.id, dispatch])
-
-  useEffect(() => {
-    const handler = (data: Message) => {
-      dispatch(
-        updateNewMessage({
-          conversationId: data.conversationId,
-          lastMessage: { ...data },
-        })
-      )
-      if (data.conversationId !== selectedChatIdRef.current) {
-        dispatch(
-          upUnreadCount({
-            conversationId: data.conversationId,
-          })
-        )
-      }
-
-      //cap nhat last message trong notification
-      //đưa notification lên đầu
-    }
-
-    socket.on('chat.new_message', handler)
-
-    return () => {
-      socket.off('chat.new_message', handler)
-    }
-  }, [dispatch, selectedChatId])
+  
 
   const loadMoreConversations = () => {
     const nextPage = page + 1

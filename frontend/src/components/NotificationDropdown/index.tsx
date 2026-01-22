@@ -11,15 +11,11 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch } from '@/redux/store'
 import {
-  addNotification,
   getNotifications,
   selectNotification,
   type Notification,
 } from '@/redux/slices/notificationSlice'
 import { formatDateTime } from '@/utils/formatDateTime'
-import { socket } from '@/lib/socket'
-import useSound from 'use-sound'
-import notificationSound from '@/assets/notification.mp3'
 import FriendRequestModal from '../FriendRequestModal'
 
 export function NotificationsDropdown() {
@@ -32,19 +28,8 @@ export function NotificationsDropdown() {
     }
   }, [dispatch, notifications.length])
 
-  const [play] = useSound(notificationSound, { volume: 0.5 })
 
-  useEffect(() => {
-    const onNewNotification = (data: Notification) => {
-      dispatch(addNotification(data))
-      play()
-    }
-    socket.on('notification.new_notification', onNewNotification)
-
-    return () => {
-      socket.off('notification.new_notification', onNewNotification)
-    }
-  }, [dispatch, play])
+ 
 
   const [showFriendRequestModal, setShowFriendRequestModal] = useState('')
 

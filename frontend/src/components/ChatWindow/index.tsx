@@ -18,7 +18,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppDispatch, RootState } from '@/redux/store'
 import { selectUser } from '@/redux/slices/userSlice'
-import { socket } from '@/lib/socket'
 import {
   addMessage,
   getMessages,
@@ -26,8 +25,6 @@ import {
   sendMessage,
   type Message,
 } from '@/redux/slices/messageSlice'
-import notificationSound from '@/assets/notification.mp3'
-import useSound from 'use-sound'
 import MessageComponent from './Messages'
 import EmojiPicker from 'emoji-picker-react'
 import {
@@ -47,7 +44,6 @@ export default function ChatWindow({
   onToggleProfile,
   onVoiceCall,
 }: ChatWindowProps) {
-  const [play] = useSound(notificationSound, { volume: 0.5 })
   const [msg, setMsg] = useState<string>('')
 
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -80,19 +76,7 @@ export default function ChatWindow({
     }
   }, [dispatch, messages.length, conversationId])
 
-  useEffect(() => {
-    const handler = (data: Message) => {
-      dispatch(addMessage(data))
-      play()
-    }
-
-    socket.on('chat.new_message', handler)
-
-    return () => {
-      socket.off('chat.new_message', handler)
-    }
-  }, [dispatch, play])
-
+ 
   useEffect(() => {
     if (!conversationId) return
     if (messages.length === 0) return
