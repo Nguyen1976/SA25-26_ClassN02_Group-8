@@ -24,7 +24,8 @@ export function LeftNavigation() {
           size='icon'
           className={cn(
             'w-12 h-12 rounded-lg transition-colors',
-            pathname === '/' && 'bg-primary text-primary-foreground',
+            (pathname === '/' || pathname.startsWith('/chat')) &&
+              'bg-primary text-primary-foreground',
           )}
           title='Chats'
           onClick={() => navigate('/')}

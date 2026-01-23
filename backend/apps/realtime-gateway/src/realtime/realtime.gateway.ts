@@ -8,10 +8,8 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
-import { UserStatusStore } from './user-status.store'
 import { JwtService } from '@nestjs/jwt'
 import { Inject, Injectable } from '@nestjs/common'
-import { ChatService } from '../chat/chat.service'
 import { SOCKET_EVENTS } from 'libs/constant/websocket/socket.events'
 import type { SendMessagePayloadSocket } from 'libs/constant/websocket/socket.payload'
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
@@ -19,6 +17,7 @@ import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 import { QUEUE_RMQ } from 'libs/constant/rmq/queue'
 import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
 import type { MemberAddedToConversationPayload } from 'libs/constant/rmq/payload'
+import { UserStatusStore } from './user-status.store'
 
 //nếu k đặt tên cổng thì nó sẽ trùng với cổng của http
 @Injectable()
@@ -38,9 +37,7 @@ export class RealtimeGateway
   constructor(
     private jwtService: JwtService,
     @Inject('REDIS_CLIENT')
-    private redisClient: any,
-    @Inject(ChatService)
-    private chatService: ChatService,
+    private redisClient: any
   ) {
     this.userStatusStore = new UserStatusStore(this.redisClient)
   }
@@ -122,28 +119,6 @@ export class RealtimeGateway
   handlePing(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
     return { event: 'pong', data: 'hello from gateway' }
   }
-
-  // @SubscribeMessage(SOCKET_EVENTS.CHAT.SEND_MESSAGE)
-  // handleSendMessage(
-  //   @MessageBody() data: SendMessagePayloadSocket,
-  //   @ConnectedSocket() client: Socket,
-  // ) {
-  //   /**
-  //    * {
-  //    *  "conversationId": "693befebbeed61ee46291bf3",
-  //    *  "message": "xin chào",
-  //    *   "tempMessageId": "uuid-123",
-  //    * }
-  //    */
-  //   this.chatService.sendMessage({
-  //     conversationId: data.conversationId,
-  //     senderId: client.data.userId,
-  //     message: data.message,
-  //     replyToMessageId: data.replyToMessageId || '',
-  //     tempMessageId: data.tempMessageId,
-  //   })
-  //   //trong tương lai trong redis có thể quản lý thêm các conversation map với user đang online để giảm số lần query xuoogns db
-  // }
 
   @RabbitSubscribe({
     exchange: EXCHANGE_RMQ.CHAT_EVENTS,

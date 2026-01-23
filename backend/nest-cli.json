@@ -82,6 +82,15 @@
         "tsConfigPath": "libs/prisma/tsconfig.lib.json"
       }
     },
+    "realtime-gateway": {
+      "type": "application",
+      "root": "apps/realtime-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/realtime-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/realtime-gateway/tsconfig.app.json"
+      }
+    },
     "redis": {
       "type": "library",
       "root": "libs/redis",

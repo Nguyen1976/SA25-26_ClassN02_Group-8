@@ -42,8 +42,24 @@
       }
     },
     {
+      "label": "realtime-gateway",
+      "type": "shell",
+      "command": "cd ./backend; npm run start:dev realtime-gateway",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new",
+        "focus": false
+      }
+    },
+    {
       "label": "start-all",
-      "dependsOn": ["api-gateway", "user", "notification", "chat"],
+      "dependsOn": [
+        "api-gateway",
+        "user",
+        "notification",
+        "chat",
+        "realtime-gateway"
+      ],
       "dependsOrder": "parallel"
     }
   ]

@@ -10,24 +10,17 @@ import {
 import { NotificationGrpcServiceClient } from 'interfaces/notification.grpc'
 import { SOCKET_EVENTS } from 'libs/constant/websocket/socket.events'
 import { firstValueFrom } from 'rxjs/internal/firstValueFrom'
-import { RealtimeGateway } from '../realtime/realtime.gateway'
 import {
   AddMemberToConversationDTO,
   ReadMessageDto,
-  SendMessageDTO,
 } from './dto/chat.dto'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
-import { ROUTING_RMQ } from 'libs/constant/rmq/routing'
-import { SendMessagePayload } from 'libs/constant/rmq/payload'
 
 @Injectable()
 export class ChatService implements OnModuleInit {
   private chatClientService: any
   constructor(
     @Inject(CHAT_GRPC_SERVICE_NAME) private readonly chatClient: ClientGrpc,
-    @Inject(forwardRef(() => RealtimeGateway))
-    private realtimeGateway: RealtimeGateway,
     private readonly amqpConnection: AmqpConnection,
   ) {}
 
@@ -55,13 +48,15 @@ export class ChatService implements OnModuleInit {
     //bắn socket về các member trong conversation
     const res = await firstValueFrom(observable)
 
-    await this.realtimeGateway.emitToUser(
-      dto.members
-        .filter((member: Member) => member.userId !== dto.createrId)
-        .map((member: Member) => member.userId),
-      SOCKET_EVENTS.CHAT.NEW_CONVERSATION,
-      res,
-    )
+
+    //đoạn nãy sẽ update thành phát hành sự kiện qua rabbitmq
+    // await this.realtimeGateway.emitToUser(
+    //   dto.members
+    //     .filter((member: Member) => member.userId !== dto.createrId)
+    //     .map((member: Member) => member.userId),
+    //   SOCKET_EVENTS.CHAT.NEW_CONVERSATION,
+    //   res,
+    // )
 
     return res as CreateConversationResponse
   }

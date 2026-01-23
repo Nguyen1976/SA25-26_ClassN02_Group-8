@@ -15,9 +15,6 @@ import {
 } from 'interfaces/user.grpc'
 import type { ClientGrpc } from '@nestjs/microservices'
 import { firstValueFrom } from 'rxjs'
-import { RealtimeGateway } from '../realtime/realtime.gateway'
-import { NotificationService } from '../notification/notification.service'
-import { ChatService } from '../chat/chat.service'
 import { Status } from '@prisma/client'
 import type { Multer } from 'multer'
 
@@ -26,10 +23,9 @@ export class UserService implements OnModuleInit {
   private userClientService: UserGrpcServiceClient
   constructor(
     @Inject(USER_GRPC_SERVICE_NAME) private userClient: ClientGrpc,
-    @Inject(RealtimeGateway) private realtimeGateway: RealtimeGateway,
-    @Inject(NotificationService)
-    private notificationService: NotificationService,
-    @Inject(ChatService) private chatService: ChatService,
+    // @Inject(NotificationService)
+    // private notificationService: NotificationService,
+    // @Inject(ChatService) private chatService: ChatService,
   ) {}
 
   onModuleInit() {
