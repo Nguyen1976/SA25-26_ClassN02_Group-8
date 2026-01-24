@@ -4,6 +4,7 @@ import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
 import type { Message } from './messageSlice'
+import { toast } from 'sonner'
 
 export interface ConversationMember {
   userId: string
@@ -35,16 +36,16 @@ export const getConversations = createAsyncThunk(
   `/chat/conversations`,
   async (
     { limit = 10, page = 1 }: { limit: number; page: number },
-    { getState }
+    { getState },
   ) => {
     const state = getState() as RootState
     const userId = state.user.id
 
     const response = await authorizeAxiosInstance.get(
-      `${API_ROOT}/chat/conversations?limit=${limit}&page=${page}`
+      `${API_ROOT}/chat/conversations?limit=${limit}&page=${page}`,
     )
     return { userId, conversations: response.data.data.conversations }
-  }
+  },
 )
 
 export const createConversation = createAsyncThunk(
@@ -61,10 +62,10 @@ export const createConversation = createAsyncThunk(
       {
         members,
         groupName,
-      }
+      },
     )
     return response.data.data
-  }
+  },
 )
 
 export const readMessage = createAsyncThunk(
@@ -82,7 +83,7 @@ export const readMessage = createAsyncThunk(
     })
     // return response.data.data
     return { conversationId, lastReadMessageId }
-  }
+  },
 )
 
 export const conversationSlice = createSlice({
@@ -91,23 +92,27 @@ export const conversationSlice = createSlice({
   reducers: {
     addConversation: (
       state,
-      action: PayloadAction<{ conversation: Conversation; userId: string }>
+      action: PayloadAction<{ conversation: Conversation; userId: string }>,
     ) => {
       const { conversation, userId } = action.payload
-      console.log("🚀 ~ conversationSlice.ts:97 ~ conversation, userId:", conversation, userId)
-      
+      console.log(
+        '🚀 ~ conversationSlice.ts:97 ~ conversation, userId:',
+        conversation,
+        userId,
+      )
+
       state.unshift({
         ...conversation,
         groupName:
           conversation.type === 'DIRECT'
             ? conversation.members.find(
-                (p: ConversationMember) => p.userId !== userId
+                (p: ConversationMember) => p.userId !== userId,
               )?.username || ''
             : conversation.groupName,
         groupAvatar:
           conversation.type === 'DIRECT'
             ? conversation.members.find(
-                (p: ConversationMember) => p.userId !== userId
+                (p: ConversationMember) => p.userId !== userId,
               )?.avatar || ''
             : conversation.groupAvatar,
         lastMessage:
@@ -118,7 +123,7 @@ export const conversationSlice = createSlice({
     },
     updateNewMessage: (
       state,
-      action: PayloadAction<{ conversationId: string; lastMessage: Message }>
+      action: PayloadAction<{ conversationId: string; lastMessage: Message }>,
     ) => {
       const { conversationId, lastMessage } = action.payload
 
@@ -134,15 +139,15 @@ export const conversationSlice = createSlice({
     },
     upUnreadCount: (
       state,
-      action: PayloadAction<{ conversationId: string }>
+      action: PayloadAction<{ conversationId: string }>,
     ) => {
       const { conversationId } = action.payload
       const conversation = state.find((c) => c.id === conversationId)
       if (!conversation) return state
-      if(conversation.unreadCount === '5+') return state
+      if (conversation.unreadCount === '5+') return state
       const newUnreadCount = Number(conversation.unreadCount) + 1
       conversation.unreadCount = String(
-        newUnreadCount > 5 ? '5+' : newUnreadCount
+        newUnreadCount > 5 ? '5+' : newUnreadCount,
       )
     },
   },
@@ -155,7 +160,7 @@ export const conversationSlice = createSlice({
           action: PayloadAction<{
             conversations: Conversation[]
             userId: string
-          }>
+          }>,
         ) => {
           const { conversations, userId } = action.payload
           const oldState = state || []
@@ -166,20 +171,20 @@ export const conversationSlice = createSlice({
               groupName:
                 c.type === 'DIRECT'
                   ? c.members.find(
-                      (p: ConversationMember) => p.userId !== userId
+                      (p: ConversationMember) => p.userId !== userId,
                     )?.username || ''
                   : c.groupName,
               groupAvatar:
                 c.type === 'DIRECT'
                   ? c.members.find(
-                      (p: ConversationMember) => p.userId !== userId
+                      (p: ConversationMember) => p.userId !== userId,
                     )?.avatar || ''
                   : c.groupAvatar,
               lastMessage: c.lastMessage !== undefined ? c.lastMessage : null,
             })) as Conversation[]),
           ]
           return state
-        }
+        },
       )
       .addCase(
         createConversation.fulfilled,
@@ -189,7 +194,8 @@ export const conversationSlice = createSlice({
             ...c,
             lastMessage: c.lastMessage !== undefined ? c.lastMessage : null,
           })
-        }
+          toast.success('Conversation created successfully')
+        },
       )
       .addCase(
         readMessage.fulfilled,
@@ -198,7 +204,7 @@ export const conversationSlice = createSlice({
           action: PayloadAction<{
             conversationId: string
             lastReadMessageId: string
-          }>
+          }>,
         ) => {
           //thực tế trong tương lại việc đọc tin nhắn sẽ thông qua socket
           //nên phần này có thể không cần thiết
@@ -211,21 +217,21 @@ export const conversationSlice = createSlice({
           // Reset unread count
           conversation.unreadCount = '0'
           return state
-        }
+        },
       )
   },
 })
 
 export const selectConversation = createSelector(
   (state: RootState) => state.conversations,
-  (conversations) => conversations
+  (conversations) => conversations,
 )
 
 export const selectMessagesByConversationId = (
   state: {
     conversations: ConversationState
   },
-  conversationId: string
+  conversationId: string,
 ) => {
   const conversation = state.conversations?.find((c) => c.id === conversationId)
   return conversation ? conversation.lastMessage : null

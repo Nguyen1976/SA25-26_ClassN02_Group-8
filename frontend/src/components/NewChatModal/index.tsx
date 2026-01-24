@@ -15,7 +15,6 @@ import {
 import type { AppDispatch } from '@/redux/store'
 import { useForm } from 'react-hook-form'
 import { createConversation } from '@/redux/slices/conversationSlice'
-import { toast } from 'sonner'
 
 interface NewChatModalProps {
   onClose: () => void
@@ -58,7 +57,6 @@ export function NewChatModal({ onClose }: NewChatModalProps) {
     )
       .unwrap()
       .finally(() => {
-        toast.success('Conversation created successfully')
         onClose()
       })
   }

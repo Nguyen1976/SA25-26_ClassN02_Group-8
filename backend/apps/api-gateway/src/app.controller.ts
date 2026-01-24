@@ -6,7 +6,7 @@ import { RateLimit } from './common/decorators/rate-limit.decorator'
 export class AppController {
   constructor(private readonly appService: AppService) {}
   @Get('health')
-  @RateLimit({ limit: 10, ttl: 60 })
+  // @RateLimit({ limit: 10, ttl: 60 })
   async getHealth() {
     return await this.appService.getHealth()
   }

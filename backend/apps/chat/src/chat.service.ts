@@ -43,6 +43,13 @@ export class ChatService {
   }
 
   async createConversation(data: CreateConversationRequest) {
+    const memberIds = data.members
+      .map((m) => m.userId)
+      .filter((id) => id !== data.createrId)
+    //trường hợp tạo nhóm
+    if (data.createrId && memberIds.length <= 1) {
+      ChatErrors.conversationNotEnoughMembers()
+    }
     const conversation = await this.conversationRepo.create({
       type: data.type as conversationType,
       groupName: data.groupName,
@@ -57,9 +64,7 @@ export class ChatService {
     )
 
     const res = await this.conversationRepo.findByIdWithMembers(conversation.id)
-    const memberIds = data.members
-      .map((m) => m.userId)
-      .filter((id) => id !== data.createrId)
+
     this.eventsPublisher.publishConversationCreated({
       ...res,
       memberIds,

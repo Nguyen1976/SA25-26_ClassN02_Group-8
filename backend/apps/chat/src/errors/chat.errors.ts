@@ -2,6 +2,13 @@ import { status } from '@grpc/grpc-js'
 import { RpcException } from '@nestjs/microservices'
 
 export class ChatErrors {
+  static conversationNotEnoughMembers(): never {
+    throw new RpcException({
+      code: status.FAILED_PRECONDITION,
+      message: 'A group conversation must have at least 3 members',
+    })
+  }
+
   static senderNotMember(): never {
     throw new RpcException({
       code: status.FAILED_PRECONDITION,
