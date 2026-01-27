@@ -1,15 +1,13 @@
-import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
-import { Global, Module } from "@nestjs/common";
-import { EXCHANGE_RMQ } from "libs/constant/rmq/exchange";
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { Global, Module } from '@nestjs/common'
+import { EXCHANGE_RMQ } from 'libs/constant/rmq/exchange'
 
 @Global()
 @Module({
   imports: [
     RabbitMQModule.forRoot({
-      exchanges: [
-        { name: EXCHANGE_RMQ.CHAT_EVENTS, type: 'topic' },
-      ],
-      uri: 'amqp://localhost:5672',
+      exchanges: [{ name: EXCHANGE_RMQ.CHAT_EVENTS, type: 'topic' }],
+      uri: 'amqp://user:user@localhost:5672',
       connectionInitOptions: { wait: true },
     }),
   ],

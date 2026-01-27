@@ -38,7 +38,7 @@ import { LoggerModule } from '@app/logger/logger.module'
           type: 'topic',
         },
       ],
-      uri: 'amqp://localhost:5672',
+      uri: 'amqp://user:user@localhost:5672',
       connectionInitOptions: { wait: true },
     }),
     StorageR2Module,

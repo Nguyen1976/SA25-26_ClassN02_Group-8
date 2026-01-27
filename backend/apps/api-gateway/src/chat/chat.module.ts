@@ -23,7 +23,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
     ]),
     RabbitMQModule.forRoot({
       exchanges: [],
-      uri: 'amqp://localhost:5672',
+      uri: 'amqp://user:user@localhost:5672',
       connectionInitOptions: { wait: true },
     }),
   ],

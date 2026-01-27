@@ -5,7 +5,11 @@ import { JwtService } from '@nestjs/jwt'
 import { Status } from '@prisma/client'
 import { Redis as RedisClient } from 'ioredis'
 import { lookup } from 'mime-types'
-import { UserRepository, FriendRequestRepository, FriendShipRepository } from './repositories'
+import {
+  UserRepository,
+  FriendRequestRepository,
+  FriendShipRepository,
+} from './repositories'
 import { UserErrors } from './errors/user.errors'
 import { UserEventsPublisher } from './publishers/user-events.publisher'
 import {
@@ -99,18 +103,18 @@ export class UserService {
   }
 
   async makeFriend(data: MakeFriendRequest): Promise<Friendship> {
-    
     const friend = await this.userRepo.findByEmail(data.inviteeEmail)
     if (!friend) {
       UserErrors.friendNotFound()
     }
-    
+
     //check xem đã là bạn bè chưa
-    const existingFriendship = await this.friendShipRepo.findFriendshipBetweenUsers(
-      data.inviterId,
-      friend.id,
-    )
-    
+    const existingFriendship =
+      await this.friendShipRepo.findFriendshipBetweenUsers(
+        data.inviterId,
+        friend.id,
+      )
+
     if (existingFriendship) {
       UserErrors.alreadyFriends()
     }
@@ -161,8 +165,14 @@ export class UserService {
     let inviteeUpdate
 
     if (data.status === Status.ACCEPTED) {
-      await this.friendShipRepo.create({ userId: data.inviterId, friendId: data.inviteeId })
-      await this.friendShipRepo.create({ userId: data.inviteeId, friendId: data.inviterId })
+      await this.friendShipRepo.create({
+        userId: data.inviterId,
+        friendId: data.inviteeId,
+      })
+      await this.friendShipRepo.create({
+        userId: data.inviteeId,
+        friendId: data.inviterId,
+      })
       inviterUpdate = await this.userRepo.findById(data.inviterId)
       inviteeUpdate = await this.userRepo.findById(data.inviteeId)
     }
@@ -197,7 +207,9 @@ export class UserService {
       UserErrors.userNotFound()
     }
 
-    const friends = await this.userRepo.findManyByIds(friendships.map(f => f.friendId) || [])
+    const friends = await this.userRepo.findManyByIds(
+      friendships.map((f) => f.friendId) || [],
+    )
     return friends as UserEntity[]
   }
 

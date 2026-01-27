@@ -34,7 +34,7 @@ import { LoggerModule } from '@app/logger'
           type: 'topic',
         },
       ],
-      uri: 'amqp://localhost:5672',
+      uri: 'amqp://user:user@localhost:5672',
       connectionInitOptions: { wait: true },
     }),
     UtilModule,

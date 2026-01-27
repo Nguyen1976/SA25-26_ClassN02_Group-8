@@ -146,13 +146,11 @@ export class ChatService {
     const take = Number(params.limit) || 20
     const page = Number(params.page) || 1
     const skip = (page - 1) * take
-
     const conversations = await this.conversationRepo.findByUserIdPaginated(
       userId,
       skip,
       take,
     )
-
     const unreadMap = await this.calculateUnreadCounts(conversations, userId)
 
     return {
