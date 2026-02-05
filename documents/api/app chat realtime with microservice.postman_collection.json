@@ -1,0 +1,592 @@
+{
+  "info": {
+    "_postman_id": "7c655a03-0505-45c0-a76c-767e12f26481",
+    "name": "app chat realtime with microservice",
+    "description": "Để test những chức năng yêu cầu phải đăng nhập sau đó xử dụng token dán vào header authorize dưới dạng \\`Bearer token\\`. Quan trọng hãy sử dụng postman sau đó import tài liệu này vào.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36484739",
+    "_collection_link": "https://go.postman.co/collection/36484739-7c655a03-0505-45c0-a76c-767e12f26481?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"230120310@st.phenikaa-uni.edu.vn\",\r\n    \"username\": \"nguy2en111\",\r\n    \"password\": \"heheheee\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"nguyen2202794@gmail.com\",\r\n    \"password\": \"heheheee\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login Copy",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"23010310@st.phenikaa-uni.edu.vn\",\r\n    \"password\": \"heheheee\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login Copy 2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"user1@test.com\",\r\n    \"password\": \"heheheee\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "make friend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2Njc1Njc2MywiZXhwIjoxNzY3MzYxNTYzfQ.ci4s79GSSKZo-_NfvNMZpCqujdAQcU6VNPyI831s1eg",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"23010310@st.phenikaa-uni.edu.vn\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/make-friend",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "make-friend"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "accept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNjZGMzZTIzYzVmMWMwNmE4ZjVkNWIiLCJlbWFpbCI6IjIzMDEwMzEwQHN0LnBoZW5pa2FhLXVuaS5lZHUudm4iLCJ1c2VybmFtZSI6Im5ndXllbjExMSIsImlhdCI6MTc2Njc1Njc4MywiZXhwIjoxNzY3MzYxNTgzfQ.vWI1_brUrHFlboMPOaq1_ERBCJeFvGU9-dbHeNzFvYQ",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"inviterId\": \"693befebbeed61ee46291bf3\",\r\n    \"status\": \"REJECTED\",\r\n    \"inviteeName\": \"nguyen111\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/update-status-make-friend",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "update-status-make-friend"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get user",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2ODAxNzQ3NSwiZXhwIjoxNzY4NjIyMjc1fQ.gY2xbwy558o25jdhIBCwLGtBCpE3ExbOTOKnW4_OqrU",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"inviterId\": \"693befebbeed61ee46291bf3\",\r\n    \"status\": \"ACCEPTED\",\r\n    \"inviteeName\": \"nguyen111\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user?userId=693befebbeed61ee46291bf3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "693befebbeed61ee46291bf3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "accept Copy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2Nzk0MjQ5NiwiZXhwIjoxNzY4NTQ3Mjk2fQ.XawlAD9Fhc8DD_kSmI1eiL58pC-HqK_iLpXiPGbPX5k",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "6042ea95-e187-46ad-9c99-9158495d9986",
+                  "src": "/C:/Users/nguye/Downloads/NotebookLM Mind Map.png"
+                },
+                {
+                  "key": "fullName",
+                  "value": "nguyen",
+                  "type": "text",
+                  "uuid": "011bd6eb-6be9-4028-ba51-d3b684a96edd"
+                },
+                {
+                  "key": "bio",
+                  "value": "nnnn",
+                  "type": "text",
+                  "uuid": "4c7a8830-10dc-43eb-a614-a022e3819516",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/update-profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "update-profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list friend",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2OTg2Mjc2MiwiZXhwIjoxNzcwNDY3NTYyfQ.9yL0ZDiNQ9GqLhmOzK6-Pl5Fc2e1lIGimIDOrdCeOBo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/user/list-friends?limit=10&page=2",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "list-friends"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get detail friend request",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNjZGMzZTIzYzVmMWMwNmE4ZjVkNWIiLCJlbWFpbCI6IjIzMDEwMzEwQHN0LnBoZW5pa2FhLXVuaS5lZHUudm4iLCJ1c2VybmFtZSI6Im5ndXllbjExMSIsImlhdCI6MTc2Njg0MTYwNywiZXhwIjoxNzY3NDQ2NDA3fQ.oX9vpw52jEUx9eihxCs9-h--LtRNSloUyMHSXSjQ4gk",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/user/detail-friend-request?friendRequestId=694feccb41e69bf268d09a32",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "detail-friend-request"],
+              "query": [
+                {
+                  "key": "friendRequestId",
+                  "value": "694feccb41e69bf268d09a32"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "conversation",
+      "item": [
+        {
+          "name": "create conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2NjY0Nzk1MCwiZXhwIjoxNzY3MjUyNzUwfQ.0hNdxV1Gw51IpUk4CN7Xa3qZ2DCw5Ydm4PzsgT7dBIk",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"groupName\": \"Nguyen\",\r\n    \"memberIds\": []\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/chat/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["chat", "create"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "send message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc3MDI2NjA2MywiZXhwIjoxNzcwODcwODYzfQ.zIeHWp5kAVA2hvLLxO_OEhX93NN5-Supuu0t6tetqTw",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"conversationId\": \"698400d464ca591552868aba\",\r\n    \"message\": \"hello\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/chat/send_message",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["chat", "send_message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "addmember to conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2NTY5ODg1MCwiZXhwIjoxNzY2MzAzNjUwfQ._N51_FNOyE7GxgTnBrMqpSAW3k48jhH0s3WYWExWJnc",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"conversationId\": \"6943adc4b02ece1fb756ad5b\",\r\n    \"memberIds\": [\r\n        \"693cdc3e23c5f1c06a8f5d5b\"\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/chat/add-member",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["chat", "add-member"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "read message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2NzI1NTE0OSwiZXhwIjoxNzY3ODU5OTQ5fQ.anDj8Hd7Po0hut4pxVQ7WpD7dYHeuNXTsCE9mkHq-Rc",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"conversationId\": \"6955e53151f3a3409438146a\",\r\n    \"lastReadMessageId\": \"695d0563c3438c1c9739ec56\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/chat/read_message",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["chat", "read_message"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get converstion",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2OTg2Mjc2MiwiZXhwIjoxNzcwNDY3NTYyfQ.9yL0ZDiNQ9GqLhmOzK6-Pl5Fc2e1lIGimIDOrdCeOBo",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/chat/conversations?limit=10&cursor=2026-02-03T02:10:25.931%2B00:00",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["chat", "conversations"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "cursor",
+                  "value": "2026-02-03T02:10:25.931%2B00:00"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get message by conversationId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNiZWZlYmJlZWQ2MWVlNDYyOTFiZjMiLCJlbWFpbCI6Im5ndXllbjIyMDI3OTRAZ21haWwuY29tIiwidXNlcm5hbWUiOiJuZ3V5ZW4xMSIsImlhdCI6MTc2NjU0NDU3NCwiZXhwIjoxNzY3MTQ5Mzc0fQ.6yk0YisJyHvYk8l3LYU_TwRWCl8Iii6Upm9XFpqT8H0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/chat/messages/6943adc4b02ece1fb756ad5b?limit=10&page=1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["chat", "messages", "6943adc4b02ece1fb756ad5b"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "notification",
+      "item": [
+        {
+          "name": "get notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNjZGMzZTIzYzVmMWMwNmE4ZjVkNWIiLCJlbWFpbCI6IjIzMDEwMzEwQHN0LnBoZW5pa2FhLXVuaS5lZHUudm4iLCJ1c2VybmFtZSI6Im5ndXllbjExMSIsImlhdCI6MTc2Njg0MDc5NiwiZXhwIjoxNzY3NDQ1NTk2fQ.hIDNIMhyo26Pg3bpxL0_NkcWpxdnxDiG71UOGLwPigg",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/notification?limit=5&page=1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["notification"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "get health",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"nguyen@gmail.com\",\r\n    \"username\": \"nguyen1976\",\r\n    \"password\": \"heheheee\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["health"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

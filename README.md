@@ -12,13 +12,14 @@
 
 ## 📚 Tài liệu
 
-| Tài liệu                                                             | Mô tả         |
-| :------------------------------------------------------------------- | :------------ |
-| [Lab Report 1](documents/Class%20N02_Group%208_Lab%20report%201.pdf) | Báo cáo Lab 1 |
-| [Lab Report 2](documents/Class%20N02_Group%208_Lab%20report%202.pdf) | Báo cáo Lab 2 |
-| [Lab Report 4](documents/Class%20N02_Group%208_Lab%20report%204.pdf) | Báo cáo Lab 4 |
-| [Lab Report 8](documents/Class%20N02_Group%208_Lab%20report%208.pdf) | Báo cáo Lab 8 |
-| [Project Report](<documents/project%20report%20(tieng%20anh).pdf>)   | Báo cáo       |
+| Tài liệu                                                                                          | Mô tả         |
+| :------------------------------------------------------------------------------------------------ | :------------ |
+| [Tài liệu api](documents/api/app%20chat%20realtime%20with%20microservice.postman_collection.json) | Tài liệu api  |
+| [Lab Report 1](documents/Class%20N02_Group%208_Lab%20report%201.pdf)                              | Báo cáo Lab 1 |
+| [Lab Report 2](documents/Class%20N02_Group%208_Lab%20report%202.pdf)                              | Báo cáo Lab 2 |
+| [Lab Report 4](documents/Class%20N02_Group%208_Lab%20report%204.pdf)                              | Báo cáo Lab 4 |
+| [Lab Report 8](documents/Class%20N02_Group%208_Lab%20report%208.pdf)                              | Báo cáo Lab 8 |
+| [Project Report](<documents/project%20report%20(tieng%20anh).pdf>)                                | Báo cáo       |
 
 ---
 
