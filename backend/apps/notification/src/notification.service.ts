@@ -53,17 +53,6 @@ export class NotificationService {
     queue: QUEUE_RMQ.NOTIFICATION_USER_MAKE_FRIEND,
   })
   async handleMakeFriend(data: UserMakeFriendPayload) {
-    /**
-     * 
-     * inviterName: data.inviterName,
-      inviteeEmail: data.inviteeEmail,
-      inviteeName: friend.username,
-      inviteeId: res.toUserId,
-      inviterId: data.inviterId,
-
-      friendRequestId: data.friendRequestId,
-     */
-    //vấn đề gặp phải đó là phải có inviteeId
     let inviteeStatus = await this.checkUserOnline(data.inviteeId)
 
     const notificationCreated = await this.createNotification({
@@ -75,11 +64,11 @@ export class NotificationService {
 
     if (!inviteeStatus) {
       //nếu offline thì gửi mail
-      // await this.mailerService.sendMakeFriendNotification({
-      //   senderName: data.inviterName,
-      //   friendEmail: data.inviteeEmail,
-      //   receiverName: data.inviteeName,
-      // })
+      await this.mailerService.sendMakeFriendNotification({
+        senderName: data.inviterName,
+        friendEmail: data.inviteeEmail,
+        receiverName: data.inviteeName,
+      })
     } else {
       //bắn socket
       this.amqpConnection.publish(

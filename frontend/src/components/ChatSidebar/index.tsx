@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { ModeToggle } from '../ModeToggle'
 import type { AppDispatch } from '@/redux/store'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
   getConversations,
   selectConversation,
@@ -17,8 +17,6 @@ import { useNavigate, useParams } from 'react-router'
 import { selectUser } from '@/redux/slices/userSlice'
 
 export function ChatSidebar() {
-  const [page, setPage] = useState(1)
-
   const user = useSelector(selectUser)
 
   const selectedChatId = useParams().conversationId || ''
@@ -36,7 +34,7 @@ export function ChatSidebar() {
   }, [dispatch, conversations?.length])
 
   const loadMoreConversations = () => {
-    const nextPage = page + 1
+    console.log(conversations[conversations.length - 1])
     dispatch(
       getConversations({
         limit: 10,
@@ -46,7 +44,6 @@ export function ChatSidebar() {
           )?.lastMessageAt || null,
       }),
     )
-    setPage(nextPage)
   }
 
   return (

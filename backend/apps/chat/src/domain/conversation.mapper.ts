@@ -20,11 +20,13 @@ export class ConversationMapper {
         createdAt: c.createdAt.toString(),
         updatedAt: c.updatedAt.toString(),
         members: c.members.map((m) => ({
+          ...m,
           userId: m.userId,
           username: m.username,
           avatar: m.avatar,
           fullName: m.fullName,
           lastReadAt: m.lastReadAt ? m.lastReadAt.toString() : null,
+          lastMessageAt: m.lastMessageAt.toString(),
         })),
         lastMessage: c.messages.length
           ? {

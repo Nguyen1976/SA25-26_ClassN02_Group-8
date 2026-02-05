@@ -44,7 +44,6 @@ export const getConversations = createAsyncThunk(
     cursor = cursor?.replaceAll('+', '%2B') || null
     const response = await authorizeAxiosInstance.get(
       `${API_ROOT}/chat/conversations?limit=${limit}&cursor=${cursor ?? ''}`,
-     
     )
     return { userId, conversations: response.data.data.conversations }
   },
@@ -97,11 +96,6 @@ export const conversationSlice = createSlice({
       action: PayloadAction<{ conversation: Conversation; userId: string }>,
     ) => {
       const { conversation, userId } = action.payload
-      console.log(
-        '🚀 ~ conversationSlice.ts:97 ~ conversation, userId:',
-        conversation,
-        userId,
-      )
 
       state.unshift({
         ...conversation,
@@ -121,6 +115,7 @@ export const conversationSlice = createSlice({
           conversation.lastMessage !== undefined
             ? conversation.lastMessage
             : null,
+        unreadCount: '0',
       })
     },
     updateNewMessage: (
