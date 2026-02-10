@@ -21,7 +21,7 @@ const initialState: FriendState = {
 
 export const getFriends = createAsyncThunk(`/user/list-friends`, async () => {
   const response = await authorizeAxiosInstance.get(
-    `${API_ROOT}/user/list-friends`,
+    `${API_ROOT}/user/list-friends?limit=2000`,
   )
   return response.data.data
 })
